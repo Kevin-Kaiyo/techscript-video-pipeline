@@ -19,3 +19,4 @@ Thumbs.db
 # 环境配置
 .env
 *.key
+.venv/
