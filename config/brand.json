@@ -1,0 +1,13 @@
+{
+  "primary": "#0066FF",
+  "secondary": "#00D4FF",
+  "accent": "#7B2FFF",
+  "background_dark": "#0A0E1A",
+  "background_light": "#E8F4FD",
+  "text_white": "#FFFFFF",
+  "text_dark": "#1A2233",
+  "font_cn": "Source Han Sans CN",
+  "font_en": "Inter",
+  "logo_text": "MicroLED科普",
+  "watermark": "Kaiyo Nan | Artronex"
+}

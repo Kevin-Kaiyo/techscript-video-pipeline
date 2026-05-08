@@ -1,0 +1,23 @@
+{
+  "resolution": "1920x1080",
+  "fps": 30,
+  "max_duration_seconds": 60,
+  "format": "mp4",
+  "codec": "h264",
+  "bitrate": "10M",
+  "audio": {
+    "sample_rate": 44100,
+    "channels": 2,
+    "voiceover_volume": 1.0,
+    "bgm_volume": 0.15
+  },
+  "subtitle": {
+    "font": "Source Han Sans CN Bold",
+    "size": 52,
+    "color": "#FFFFFF",
+    "stroke_color": "#000000",
+    "stroke_width": 3,
+    "position": "bottom_center",
+    "margin_bottom": 80
+  }
+}

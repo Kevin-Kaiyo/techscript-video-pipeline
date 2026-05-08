@@ -1,0 +1,44 @@
+{
+  "name": "microled-science-video",
+  "version": "0.1.0",
+  "description": "Micro LED 大众科普短视频系列工程",
+  "author": "Kaiyo Nan <kaiyo.creater@gmail.com>",
+  "license": "CC-BY-NC-4.0",
+  "project": {
+    "type": "video-production",
+    "category": "science-communication",
+    "language": "zh-CN",
+    "target_platform": ["bilibili", "douyin", "youtube", "linkedin"]
+  },
+  "defaults": {
+    "model": "github-copilot/claude-sonnet-4.6",
+    "image_model": "nano-banana-pro",
+    "tts_tool": "sag",
+    "music_tool": "music_generate"
+  },
+  "video_spec": {
+    "resolution": "1920x1080",
+    "fps": 30,
+    "max_duration_seconds": 60,
+    "format": "mp4",
+    "codec": "h264",
+    "bitrate": "10M"
+  },
+  "brand": {
+    "primary_color": "#0066FF",
+    "secondary_color": "#00D4FF",
+    "background_dark": "#0A0E1A",
+    "background_light": "#E8F4FD",
+    "text_light": "#FFFFFF",
+    "font_cn": "Source Han Sans CN",
+    "font_en": "Inter"
+  },
+  "episodes": [
+    {
+      "id": "ep01",
+      "title": "Micro LED 是什么？",
+      "script": "scripts/ep01_intro.md",
+      "status": "scripted"
+    }
+  ]
+}

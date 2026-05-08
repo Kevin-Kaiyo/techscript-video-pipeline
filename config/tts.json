@@ -1,0 +1,10 @@
+{
+  "tool": "sag",
+  "language": "zh-CN",
+  "voice_style": "professional_warm",
+  "speed": 1.0,
+  "pitch": 0,
+  "notes": "标准普通话，语速约3.5-4字/秒，适合科普讲解",
+  "output_format": "mp3",
+  "output_dir": "assets/audio/voiceover/"
+}
