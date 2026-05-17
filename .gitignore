@@ -50,3 +50,8 @@ config/
 scripts/
 production/
 templates/
+
+# ===== AI assistant meta files (not for public repo) =====
+AGENTS.md
+CLAUDE.md
+CURSOR.md
