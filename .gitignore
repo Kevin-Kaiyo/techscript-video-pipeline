@@ -1,10 +1,17 @@
-# ===== Generated outputs (DO NOT commit large media) =====
-episodes/*/output/*.mp4
-episodes/*/output/*.mov
-episodes/*/animations/hyperframes/renders/
+# ===== Generated outputs (large media, DO NOT commit) =====
+*.mp4
+*.mov
+*.avi
+*.mp3
+*.wav
+*.aac
+*.m4a
 /tmp/
 
-# ===== TTS bake-off (local experiments) =====
+# ===== Render artifacts =====
+episodes/*/animations/hyperframes/renders/
+
+# ===== TTS experiments =====
 tts-bake-off/
 
 # ===== Python envs =====
@@ -18,6 +25,10 @@ __pycache__/
 # ===== Node =====
 node_modules/
 
+# ===== Voice samples (personal data, never commit) =====
+voices/*/prompt_raw.wav
+voices/*/kevin_clone_test.*
+
 # ===== OS =====
 .DS_Store
 Thumbs.db
@@ -29,9 +40,8 @@ Thumbs.db
 *.key
 *.pem
 
-# ===== Voice samples (personal, not for public repo) =====
-voices/kevin/prompt_raw.wav
-voices/kevin/kevin_clone_test.*
+# ===== Symlinks / local paths =====
+pipeline/math_video_pipeline
 
 # ===== Old structure (migrated away) =====
 assets/audio/
@@ -40,4 +50,3 @@ config/
 scripts/
 production/
 templates/
-pipeline/math_video_pipeline
