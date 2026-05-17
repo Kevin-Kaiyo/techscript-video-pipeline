@@ -16,7 +16,7 @@
 ## 目录结构
 
 ```
-microled-science-video/
+techscript-video-pipeline/
 │
 ├── episodes/                    # 每集独立，结构一致
 │   └── <ep-name>/

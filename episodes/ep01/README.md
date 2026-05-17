@@ -27,7 +27,7 @@ ep01/
 ## 构建
 
 ```bash
-cd ~/Projects/microled-science-video
+cd ~/Projects/techscript-video-pipeline
 
 # 一键完整构建
 make ep01

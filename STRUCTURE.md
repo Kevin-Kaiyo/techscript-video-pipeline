@@ -1,7 +1,7 @@
 # 项目结构（v2 — 2026-05-17 重组）
 
 ```
-microled-science-video/
+techscript-video-pipeline/
 ├── episodes/
 │   └── ep01/                              # 每集独立目录
 │       ├── script.md                      # 文案脚本

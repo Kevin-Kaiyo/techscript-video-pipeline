@@ -7,7 +7,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from pipeline.tts import list_providers, get_provider
 
 TEXT = "微LED是新一代显示技术。它由数百万颗极小的发光二极管组成，每颗只有头发丝直径的十分之一。这意味着更亮、更省电、寿命更长，是未来五年最值得关注的赛道。"
-OUT = Path.home() / "Projects/microled-science-video/tts-bake-off"
+OUT = Path.home() / "Projects/techscript-video-pipeline/tts-bake-off"
 OUT.mkdir(parents=True, exist_ok=True)
 
 # Provider 黑名单（写音色太多/费钱）

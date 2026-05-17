@@ -1,4 +1,4 @@
-# 🎬 MicroLED 科普视频工厂 — 完整规划文档
+# 🎬 TechScript Video Pipeline — 完整规划文档
 
 > 目标：把复杂半导体技术，用视频变成任何人都能看懂的内容
 > 作者：Kevin (Kaiyo Nan) + AI 龙虾宝宝 🦞
@@ -25,7 +25,7 @@
 
 | 成品 | 路径 | 时长 | 质量评估 |
 |---|---|---|---|
-| EP01 MicroLED简介（旧版）| `microled-science-video/output/ep01_microled_intro.mp4` | 57s | ⚠️ 静图+配音，音画同步差 |
+| EP01 MicroLED简介（旧版）| `techscript-video-pipeline/output/ep01_microled_intro.mp4` | 57s | ⚠️ 静图+配音，音画同步差 |
 | EP01 HyperFrames动画（新）| `microled-hyperframes-demo/index.html` | 32s | ✅ 3幕动画，视觉效果优秀 |
 | 勾股定理 Manim | `math-video-pipeline/outputs/pythagoras_manim_latex_cosyvoice_v1.mp4` | — | ✅ LaTeX质量好 |
 

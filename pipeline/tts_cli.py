@@ -54,7 +54,7 @@ def cmd_synth_text(provider, voice, text, out):
 
 
 def cmd_synth_ep(provider, voice, ep):
-    ep_dir = ROOT / "microled-science-video/episodes" / ep
+    ep_dir = ROOT / "techscript-video-pipeline/episodes" / ep
     script = ep_dir / "script.md"
     if not script.exists():
         print(f"❌ {script} 不存在"); sys.exit(1)
@@ -110,7 +110,7 @@ def main():
     ap.add_argument("--out", default="out.mp3")
     ap.add_argument("--ep", default=None)
     ap.add_argument("--bake-off", default=None, dest="bake_off")
-    ap.add_argument("--bake-dir", default=str(ROOT / "microled-science-video/tts-bake-off"))
+    ap.add_argument("--bake-dir", default=str(ROOT / "techscript-video-pipeline/tts-bake-off"))
     args = ap.parse_args()
 
     if args.list:

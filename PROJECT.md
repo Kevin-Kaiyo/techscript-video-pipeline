@@ -4,8 +4,8 @@
 
 | 字段 | 内容 |
 |------|------|
-| 项目名称 | Micro LED 大众科普短视频系列 |
-| 项目代号 | microled-science-video |
+| 项目名称 | TechScript Video Pipeline |
+| 项目代号 | techscript-video-pipeline |
 | 负责人 | Kaiyo Nan |
 | 创建日期 | 2026-05-08 |
 | 当前版本 | v0.1.0 |

@@ -55,8 +55,8 @@ TechScript Video Pipeline 是一套**本地优先、可复刻**的技术讲解�
 ### 1. 克隆项目
 
 ```bash
-git clone https://github.com/Kevin-Kaiyo/microled-science-video.git
-cd microled-science-video
+git clone https://github.com/Kevin-Kaiyo/techscript-video-pipeline.git
+cd techscript-video-pipeline
 ```
 
 ### 2. 安装 Python 依赖

@@ -5,7 +5,7 @@ generate_voiceover.py — 用 CosyVoice 给一集生成所有配音段
 用法:
   cd ~/Projects/cosyvoice_local
   source .venv/bin/activate
-  python /Users/kimmy/Projects/microled-science-video/pipeline/generate_voiceover.py \
+  python /Users/kimmy/Projects/techscript-video-pipeline/pipeline/generate_voiceover.py \
     --ep ep02 \
     --voice "中文男"
 
@@ -28,7 +28,7 @@ import torchaudio
 from cosyvoice.cli.cosyvoice import AutoModel
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--project-root', default=str(Path.home() / 'Projects/microled-science-video'))
+parser.add_argument('--project-root', default=str(Path.home() / 'Projects/techscript-video-pipeline'))
 parser.add_argument('--ep', required=True)
 parser.add_argument('--voice', default='中文男', help='SFT speaker: 中文男/中文女/英文男/英文女/...')
 parser.add_argument('--model', default=str(Path.home() / 'Projects/cosyvoice_local/pretrained_models/CosyVoice-300M-SFT'))

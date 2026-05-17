@@ -18,7 +18,7 @@ brew install ffmpeg node python@3.11 git
 ### Python 环境（TTS）
 
 ```bash
-cd microled-science-video
+cd techscript-video-pipeline
 python3 -m venv .venv-tts
 source .venv-tts/bin/activate
 pip install edge-tts requests tabulate
