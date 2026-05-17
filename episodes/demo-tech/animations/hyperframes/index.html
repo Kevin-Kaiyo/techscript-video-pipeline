@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: #050810; }
+      #stage {
+        position: relative; width: 1920px; height: 1080px;
+        overflow: hidden;
+        font-family: "Noto Sans SC", sans-serif;
+        background: radial-gradient(ellipse at 50% 40%, #0a1428 0%, #050810 60%, #02050a 100%);
+        color: #fff;
+      }
+      #bg-grid {
+        position: absolute; inset: 0;
+        background-image:
+          linear-gradient(rgba(100,180,255,0.06) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(100,180,255,0.06) 1px, transparent 1px);
+        background-size: 60px 60px;
+        z-index: 1;
+      }
+
+      /* ====== Scene 1: 问题 + 大数字 ====== */
+      #s1 { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+      #s1-q {
+        font-size: 64px; font-weight: 300; letter-spacing: 4px;
+        color: rgba(255,255,255,0.85); margin-bottom: 50px;
+      }
+      #s1-num {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 280px; font-weight: 900;
+        background: linear-gradient(135deg, #00d9ff 0%, #fff 50%, #0080ff 100%);
+        -webkit-background-clip: text; background-clip: text;
+        color: transparent;
+        line-height: 1; letter-spacing: 4px;
+      }
+      #s1-unit { font-size: 100px; font-weight: 700; color: #00d9ff; margin-top: 20px; }
+      #s1-desc { font-size: 42px; color: rgba(255,255,255,0.7); margin-top: 30px; letter-spacing: 6px; }
+
+      /* ====== Scene 2: 概念命名 ====== */
+      #s2 { position: absolute; inset: 0; z-index: 5; display: flex; align-items: center; justify-content: center; }
+      #s2-box { text-align: center; }
+      #s2-cn {
+        font-size: 200px; font-weight: 900; letter-spacing: 30px;
+        color: transparent;
+        background: linear-gradient(135deg, #ff6b00 0%, #ffd060 50%, #00d9ff 100%);
+        -webkit-background-clip: text; background-clip: text;
+        line-height: 1;
+      }
+      #s2-en {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 56px; color: rgba(0,217,255,0.7);
+        letter-spacing: 16px; margin-top: 30px;
+      }
+      #s2-tag {
+        display: inline-block;
+        margin-top: 60px; padding: 14px 36px;
+        background: rgba(255,107,0,0.15);
+        border: 1px solid rgba(255,107,0,0.5);
+        border-radius: 30px;
+        color: #ff9040;
+        font-size: 30px; letter-spacing: 4px;
+      }
+
+      /* ====== Scene 3: 四种方案对比表 ====== */
+      #s3 { position: absolute; inset: 0; z-index: 5; padding: 80px 120px; }
+      #s3-title { font-size: 56px; font-weight: 700; letter-spacing: 4px; margin-bottom: 40px; }
+      #s3-title .accent { color: #00d9ff; }
+      #s3-grid {
+        display: grid; grid-template-columns: 280px repeat(3, 1fr); gap: 0;
+        font-family: "Noto Sans SC", sans-serif;
+        border-radius: 16px; overflow: hidden;
+        background: rgba(10,20,40,0.6);
+      }
+      .th, .td {
+        padding: 24px 20px;
+        border-right: 1px solid rgba(0,217,255,0.15);
+        border-bottom: 1px solid rgba(0,217,255,0.15);
+      }
+      .th {
+        background: rgba(0,150,255,0.15);
+        font-size: 32px; font-weight: 700; color: #00d9ff;
+        text-align: center; letter-spacing: 2px;
+      }
+      .td { font-size: 30px; text-align: center; }
+      .td.row-label { text-align: left; padding-left: 30px; color: rgba(255,255,255,0.8); font-weight: 500; }
+      .bar { display: inline-block; height: 22px; border-radius: 11px; vertical-align: middle; margin-right: 12px; }
+      .bar.b1 { background: linear-gradient(90deg, #00d9ff, #0080ff); }
+      .bar.b2 { background: linear-gradient(90deg, #ffd060, #ff8800); }
+      .bar.b3 { background: linear-gradient(90deg, #ff6090, #cc3366); }
+      .val { font-family: "JetBrains Mono", monospace; font-weight: 700; }
+
+      /* ====== Scene 4: 流程图 (4 步) ====== */
+      #s4 { position: absolute; inset: 0; z-index: 5; padding: 80px 100px; }
+      #s4-title { font-size: 52px; font-weight: 700; margin-bottom: 60px; color: #00d9ff; letter-spacing: 4px; }
+      #s4-flow { display: flex; align-items: center; justify-content: space-between; }
+      .step {
+        width: 260px; height: 260px;
+        border-radius: 24px;
+        background: rgba(0,40,80,0.4);
+        border: 2px solid rgba(0,217,255,0.4);
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        position: relative;
+      }
+      .step.active { box-shadow: 0 0 50px rgba(0,217,255,0.6); border-color: #00d9ff; }
+      .step-icon { font-size: 88px; margin-bottom: 16px; }
+      .step-num {
+        position: absolute; top: -20px; left: -20px;
+        width: 56px; height: 56px; border-radius: 50%;
+        background: #00d9ff; color: #000;
+        font-size: 32px; font-weight: 900;
+        display: flex; align-items: center; justify-content: center;
+      }
+      .step-label { font-size: 28px; font-weight: 700; letter-spacing: 2px; }
+      .step-detail { font-size: 22px; color: rgba(255,255,255,0.6); margin-top: 6px; }
+      .arrow {
+        flex: 1; height: 4px;
+        background: linear-gradient(90deg, rgba(0,217,255,0.2), rgba(0,217,255,0.8));
+        margin: 0 20px;
+        position: relative;
+        opacity: 0;
+      }
+      .arrow::after {
+        content: ''; position: absolute; right: -2px; top: -8px;
+        border-left: 16px solid #00d9ff; border-top: 10px solid transparent; border-bottom: 10px solid transparent;
+      }
+      #s4-spec {
+        margin-top: 80px; display: flex; gap: 80px; justify-content: center;
+      }
+      .spec {
+        text-align: center; padding: 20px 50px;
+        border: 1px solid rgba(0,217,255,0.4);
+        border-radius: 16px;
+        background: rgba(0,30,60,0.3);
+      }
+      .spec-val {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 64px; font-weight: 900; color: #00d9ff;
+      }
+      .spec-label { font-size: 22px; color: rgba(255,255,255,0.7); margin-top: 6px; letter-spacing: 2px; }
+
+      /* ====== Scene 5: 关键结论 ====== */
+      #s5 { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+      #s5-num {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 240px; font-weight: 900; line-height: 1;
+        background: linear-gradient(135deg, #ff3366 0%, #ff9040 100%);
+        -webkit-background-clip: text; background-clip: text; color: transparent;
+      }
+      #s5-num-sub { font-size: 56px; color: #ff6080; margin-top: 10px; letter-spacing: 4px; }
+      #s5-desc { font-size: 44px; color: rgba(255,255,255,0.85); margin-top: 50px; letter-spacing: 4px; text-align: center; }
+      #s5-tag {
+        margin-top: 60px;
+        font-size: 64px; font-weight: 900;
+        color: transparent;
+        background: linear-gradient(135deg, #00d9ff 0%, #fff 50%, #0080ff 100%);
+        -webkit-background-clip: text; background-clip: text;
+        letter-spacing: 10px;
+      }
+
+      /* ====== 字幕 ====== */
+      #subtitle {
+        position: absolute; bottom: 60px; left: 50%;
+        font-size: 38px; color: #fff;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.95), 0 0 4px #000;
+        letter-spacing: 3px; white-space: nowrap; z-index: 20;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage" data-composition-id="demo-tech" data-start="0" data-duration="45" data-width="1920" data-height="1080">
+      <div id="bg-grid"></div>
+
+      <!-- S1 (0-6s) -->
+      <div id="s1" style="visibility:hidden;opacity:0;">
+        <div id="s1-q">一块 4K Micro LED 屏，需要多少颗 LED？</div>
+        <div id="s1-num">0</div>
+        <div id="s1-unit">万颗</div>
+        <div id="s1-desc">而且，每一颗都要精确就位</div>
+      </div>
+
+      <!-- S2 (6-12s) -->
+      <div id="s2" style="visibility:hidden;opacity:0;">
+        <div id="s2-box">
+          <div id="s2-cn">巨量转移</div>
+          <div id="s2-en">MASS&nbsp;&nbsp;TRANSFER</div>
+          <div id="s2-tag">⚠ 业界最难工艺</div>
+        </div>
+      </div>
+
+      <!-- S3 (12-22s) -->
+      <div id="s3" style="visibility:hidden;opacity:0;">
+        <div id="s3-title"><span class="accent">四种主流</span>巨量转移方案</div>
+        <div id="s3-grid">
+          <div class="th">方案</div>
+          <div class="th">精度</div>
+          <div class="th">速度</div>
+          <div class="th">良率</div>
+
+          <div class="td row-label">弹性印章 PDMS</div>
+          <div class="td"><span class="bar b1" style="width:140px;"></span><span class="val">±0.5μm</span></div>
+          <div class="td"><span class="bar b2" style="width:90px;"></span><span class="val">中</span></div>
+          <div class="td"><span class="bar b3" style="width:160px;"></span><span class="val">99.99%</span></div>
+
+          <div class="td row-label">激光转印 LIFT</div>
+          <div class="td"><span class="bar b1" style="width:120px;"></span><span class="val">±1μm</span></div>
+          <div class="td"><span class="bar b2" style="width:170px;"></span><span class="val">快</span></div>
+          <div class="td"><span class="bar b3" style="width:120px;"></span><span class="val">99.9%</span></div>
+
+          <div class="td row-label">流体自组装</div>
+          <div class="td"><span class="bar b1" style="width:90px;"></span><span class="val">±2μm</span></div>
+          <div class="td"><span class="bar b2" style="width:200px;"></span><span class="val">极快</span></div>
+          <div class="td"><span class="bar b3" style="width:80px;"></span><span class="val">99.5%</span></div>
+
+          <div class="td row-label">滚动转印</div>
+          <div class="td"><span class="bar b1" style="width:80px;"></span><span class="val">±3μm</span></div>
+          <div class="td"><span class="bar b2" style="width:120px;"></span><span class="val">中</span></div>
+          <div class="td"><span class="bar b3" style="width:60px;"></span><span class="val">99%</span></div>
+        </div>
+      </div>
+
+      <!-- S4 (22-30s) -->
+      <div id="s4" style="visibility:hidden;opacity:0;">
+        <div id="s4-title">弹性印章 · 工艺四步骤</div>
+        <div id="s4-flow">
+          <div class="step" id="step1">
+            <div class="step-num">1</div>
+            <div class="step-icon"><svg viewBox="0 0 48 48" fill="none" width="56" height="56"><path d="M12 8 Q8 8 6 14 L6 22 Q6 28 12 28 L18 28 L18 32 L30 32 L30 28 L36 28 Q42 28 42 22 L42 14 Q40 8 36 8 Z" stroke="#00d9ff" stroke-width="2" fill="rgba(0,217,255,0.1)"/><rect x="18" y="32" width="12" height="6" rx="1" stroke="#00d9ff" stroke-width="1.5" fill="rgba(0,217,255,0.2)"/><circle cx="24" cy="18" r="5" stroke="#00d9ff" stroke-width="2"/><line x1="6" y1="18" x2="13" y2="18" stroke="#00d9ff" stroke-width="2" stroke-linecap="round"/><line x1="35" y1="18" x2="42" y2="18" stroke="#00d9ff" stroke-width="2" stroke-linecap="round"/></svg></div>
+            <div class="step-label">吸附</div>
+            <div class="step-detail">范德华力</div>
+          </div>
+          <div class="arrow" id="arr1"></div>
+          <div class="step" id="step2">
+            <div class="step-num">2</div>
+            <div class="step-icon"><svg viewBox="0 0 48 48" fill="none" width="56" height="56"><circle cx="24" cy="24" r="16" stroke="#00d9ff" stroke-width="2"/><circle cx="24" cy="24" r="6" stroke="#00d9ff" stroke-width="2" fill="rgba(0,217,255,0.3)"/><circle cx="24" cy="24" r="2" fill="#00d9ff"/><line x1="24" y1="4" x2="24" y2="8" stroke="#00d9ff" stroke-width="2" stroke-linecap="round"/><line x1="24" y1="40" x2="24" y2="44" stroke="#00d9ff" stroke-width="2" stroke-linecap="round"/><line x1="4" y1="24" x2="8" y2="24" stroke="#00d9ff" stroke-width="2" stroke-linecap="round"/><line x1="40" y1="24" x2="44" y2="24" stroke="#00d9ff" stroke-width="2" stroke-linecap="round"/></svg></div>
+            <div class="step-label">对准</div>
+            <div class="step-detail">±0.5μm</div>
+          </div>
+          <div class="arrow" id="arr2"></div>
+          <div class="step" id="step3">
+            <div class="step-num">3</div>
+            <div class="step-icon">⬇</div>
+            <div class="step-label">释放</div>
+            <div class="step-detail">压力切换</div>
+          </div>
+          <div class="arrow" id="arr3"></div>
+          <div class="step" id="step4">
+            <div class="step-num">4</div>
+            <div class="step-icon"><svg viewBox="0 0 48 48" fill="none" width="56" height="56"><path d="M8 24 Q8 12 24 10" stroke="#00d9ff" stroke-width="2.5" stroke-linecap="round"/><polyline points="20,6 24,10 20,14" stroke="#00d9ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M40 24 Q40 36 24 38" stroke="rgba(0,217,255,0.6)" stroke-width="2.5" stroke-linecap="round"/><polyline points="28,42 24,38 28,34" stroke="rgba(0,217,255,0.6)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="step-label">重复</div>
+            <div class="step-detail">×几百次</div>
+          </div>
+        </div>
+        <div id="s4-spec">
+          <div class="spec"><div class="spec-val">10⁴</div><div class="spec-label">每次转移颗数</div></div>
+          <div class="spec"><div class="spec-val">±0.5μm</div><div class="spec-label">对准精度</div></div>
+        </div>
+      </div>
+
+      <!-- S5 (30-38s) -->
+      <div id="s5" style="visibility:hidden;opacity:0;">
+        <div id="s5-num">99.99%</div>
+        <div id="s5-num-sub">良率</div>
+        <div id="s5-desc">仍意味着每块屏幕有 <span style="color:#ff6080;font-weight:900;">2,400+ 颗</span> 坏点</div>
+        <div id="s5-tag">这就是真正的壁垒</div>
+      </div>
+
+      <div id="subtitle"></div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+
+      // 初始化（HTML inline + gsap.set 双保险）
+      gsap.set(["#s1","#s2","#s3","#s4","#s5"], { opacity: 0, visibility: "hidden" });
+      gsap.set("#subtitle", { x: "-50%", opacity: 0 });
+
+      const tl = gsap.timeline({ paused: true });
+
+      tl.set(["#s1","#s2","#s3","#s4","#s5"], { opacity: 0, visibility: "hidden" }, 0);
+      tl.set("#subtitle", { x: "-50%", opacity: 0 }, 0);
+
+      // ═══ S1: 0-6s 数字滚动 ═══
+      tl.set("#s1", { visibility: "visible" }, 0);
+      tl.to("#s1", { opacity: 1, duration: 0.5 }, 0.2);
+      tl.from("#s1-q", { y: 30, opacity: 0, duration: 0.7 }, 0.4);
+      // 数字从 0 滚到 2400
+      const numObj = { v: 0 };
+      tl.to(numObj, {
+        v: 2400, duration: 2.5, ease: "power2.out",
+        onUpdate: () => { document.getElementById('s1-num').textContent = Math.round(numObj.v).toLocaleString(); }
+      }, 1.2);
+      tl.from("#s1-unit", { y: 20, opacity: 0, duration: 0.6 }, 3.5);
+      tl.from("#s1-desc", { y: 20, opacity: 0, duration: 0.6 }, 4.2);
+
+      tl.call(() => { document.getElementById('subtitle').textContent = "4K Micro LED 屏 = 2400 万颗微型 LED"; }, [], 0.5);
+      tl.to("#subtitle", { opacity: 1, duration: 0.4 }, 0.5);
+      tl.to("#subtitle", { opacity: 0, duration: 0.4 }, 5.4);
+
+      tl.to("#s1", { opacity: 0, duration: 0.5 }, 5.5);
+      tl.set("#s1", { visibility: "hidden" }, 6.0);
+
+      // ═══ S2: 6-12s 概念 ═══
+      tl.set("#s2", { visibility: "visible" }, 5.9);
+      tl.to("#s2", { opacity: 1, duration: 0.5 }, 6.0);
+      tl.from("#s2-cn", { scale: 0.7, opacity: 0, duration: 0.9, ease: "back.out(1.5)" }, 6.4);
+      tl.from("#s2-en", { y: 20, opacity: 0, duration: 0.6 }, 7.4);
+      tl.from("#s2-tag", { scale: 0.5, opacity: 0, duration: 0.6, ease: "back.out(2)" }, 8.4);
+
+      tl.call(() => { document.getElementById('subtitle').textContent = "巨量转移 — 业界最难的工艺"; }, [], 6.5);
+      tl.to("#subtitle", { opacity: 1, duration: 0.4 }, 6.5);
+      tl.to("#subtitle", { opacity: 0, duration: 0.4 }, 11.0);
+
+      tl.to("#s2", { opacity: 0, duration: 0.5 }, 11.4);
+      tl.set("#s2", { visibility: "hidden" }, 11.9);
+
+      // ═══ S3: 12-22s 表格 ═══
+      tl.set("#s3", { visibility: "visible" }, 11.8);
+      tl.to("#s3", { opacity: 1, duration: 0.5 }, 12.0);
+      tl.from("#s3-title", { x: -30, opacity: 0, duration: 0.6 }, 12.3);
+
+      // 表头进入
+      tl.from(".th", { y: -20, opacity: 0, duration: 0.4, stagger: 0.08 }, 12.8);
+      // 四行依次进入
+      const rows = [
+        [13.5, "弹性印章"], [15.0, "激光转印"], [16.5, "流体自组装"], [18.0, "滚动转印"]
+      ];
+      rows.forEach(([t, label], i) => {
+        const start = i * 4 + 4;  // grid cells: 4 th + 4*4 td; td index per row
+        tl.from(`#s3-grid .td:nth-child(${start+1}), #s3-grid .td:nth-child(${start+2}), #s3-grid .td:nth-child(${start+3}), #s3-grid .td:nth-child(${start+4})`,
+          { x: -20, opacity: 0, duration: 0.4, stagger: 0.1 }, t);
+      });
+
+      tl.call(() => { document.getElementById('subtitle').textContent = "精度 · 速度 · 良率 — 三难取舍"; }, [], 13.0);
+      tl.to("#subtitle", { opacity: 1, duration: 0.4 }, 13.0);
+      tl.to("#subtitle", { opacity: 0, duration: 0.4 }, 21.0);
+
+      tl.to("#s3", { opacity: 0, duration: 0.5 }, 21.3);
+      tl.set("#s3", { visibility: "hidden" }, 21.9);
+
+      // ═══ S4: 22-30s 流程 ═══
+      tl.set("#s4", { visibility: "visible" }, 21.8);
+      tl.to("#s4", { opacity: 1, duration: 0.5 }, 22.0);
+      tl.from("#s4-title", { y: -20, opacity: 0, duration: 0.6 }, 22.3);
+
+      // 四步依次进入
+      [["step1", 22.8], ["step2", 24.0], ["step3", 25.2], ["step4", 26.4]].forEach(([id, t]) => {
+        tl.from(`#${id}`, { scale: 0.5, opacity: 0, duration: 0.5, ease: "back.out(1.5)" }, t);
+        tl.to(`#${id}`, { boxShadow: "0 0 50px rgba(0,217,255,0.6)", borderColor: "#00d9ff", duration: 0.3 }, t + 0.5);
+      });
+      // 箭头
+      [["arr1", 23.5], ["arr2", 24.7], ["arr3", 25.9]].forEach(([id, t]) => {
+        tl.from(`#${id}`, { scaleX: 0, opacity: 0, transformOrigin: "left", duration: 0.4 }, t);
+        tl.to(`#${id}`, { opacity: 1, duration: 0.1 }, t);
+      });
+      // spec 卡
+      tl.from(".spec", { y: 30, opacity: 0, duration: 0.5, stagger: 0.2 }, 27.5);
+
+      tl.call(() => { document.getElementById('subtitle').textContent = "吸附 → 对准 → 释放 → 重复"; }, [], 22.5);
+      tl.to("#subtitle", { opacity: 1, duration: 0.4 }, 22.5);
+      tl.to("#subtitle", { opacity: 0, duration: 0.4 }, 29.0);
+
+      tl.to("#s4", { opacity: 0, duration: 0.5 }, 29.4);
+      tl.set("#s4", { visibility: "hidden" }, 29.9);
+
+      // ═══ S5: 30-38s 结论 ═══
+      tl.set("#s5", { visibility: "visible" }, 29.8);
+      tl.to("#s5", { opacity: 1, duration: 0.5 }, 30.0);
+      tl.from("#s5-num", { scale: 0.5, opacity: 0, duration: 0.9, ease: "back.out(1.7)" }, 30.3);
+      tl.from("#s5-num-sub", { y: 20, opacity: 0, duration: 0.5 }, 31.4);
+      tl.from("#s5-desc", { y: 20, opacity: 0, duration: 0.6 }, 32.0);
+      tl.from("#s5-tag", { scale: 0.7, opacity: 0, duration: 0.8, ease: "back.out(1.5)" }, 33.5);
+
+      tl.call(() => { document.getElementById('subtitle').textContent = "99.99% 良率 = 每屏 2400+ 坏点"; }, [], 30.5);
+      tl.to("#subtitle", { opacity: 1, duration: 0.4 }, 30.5);
+      tl.to("#subtitle", { opacity: 0, duration: 0.4 }, 42.5);
+
+      tl.to("#s5", { opacity: 0, duration: 0.8 }, 43.5);
+
+      window.__timelines["demo-tech"] = tl;
+    </script>
+  </body>
+</html>

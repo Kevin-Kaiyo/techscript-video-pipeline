@@ -1,0 +1,39 @@
+THIRD-PARTY NOTICES
+===================
+
+This project uses the following third-party components:
+
+1. GSAP (GreenSock Animation Platform)
+   URL: https://gsap.com
+   License: GSAP Standard License
+   NOTE: GSAP is FREE for non-commercial use. For commercial projects,
+         a paid license is required. See: https://gsap.com/licensing/
+   Usage: Animation rendering in HyperFrames engine
+
+2. CosyVoice / Fun-CosyVoice3
+   URL: https://github.com/FunAudioLLM/CosyVoice
+   License: Apache 2.0
+   Usage: Local offline TTS and zero-shot voice cloning
+
+3. Edge TTS (edge-tts)
+   URL: https://github.com/rany2/edge-tts
+   License: GPL v3
+   NOTE: Uses Microsoft Edge TTS service. Subject to Microsoft's Terms of Service.
+   Usage: Free online TTS with natural Chinese voices
+
+4. FFmpeg
+   URL: https://ffmpeg.org
+   License: LGPL v2.1+ / GPL v2+ (depending on build)
+   Usage: Video encoding and audio mixing
+
+5. Manim Community
+   URL: https://www.manim.community
+   License: MIT
+   Usage: Mathematical animation rendering (planned)
+
+---
+
+⚠️  COMMERCIAL USE WARNING:
+This project integrates GSAP under its non-commercial license.
+Using this project in a commercial product requires purchasing a GSAP commercial license.
+All other components are either MIT or Apache 2.0 licensed.

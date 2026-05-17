@@ -1,0 +1,35 @@
+{
+  "tracks": [
+    {
+      "id": "s01",
+      "file": "demo-tech_s01.mp3",
+      "start_ms": 0,
+      "duration_s": 7.296
+    },
+    {
+      "id": "s02",
+      "file": "demo-tech_s02.mp3",
+      "start_ms": 7596,
+      "duration_s": 4.656
+    },
+    {
+      "id": "s03",
+      "file": "demo-tech_s03.mp3",
+      "start_ms": 12552,
+      "duration_s": 11.16
+    },
+    {
+      "id": "s04",
+      "file": "demo-tech_s04.mp3",
+      "start_ms": 24012,
+      "duration_s": 10.32
+    },
+    {
+      "id": "s05",
+      "file": "demo-tech_s05.mp3",
+      "start_ms": 34632,
+      "duration_s": 10.512
+    }
+  ],
+  "total_duration": 45.144
+}

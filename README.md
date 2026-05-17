@@ -1,91 +1,162 @@
-# 🔵 Micro LED 科普短视频项目
+<div align="center">
 
-> **面向大众的 Micro LED 入门科普视频工程**
-> 60 秒 | 16:9 1080P | 普通话配音 | 科技简约蓝白风
+# 🎬 TechScript Video Pipeline
+
+**把技术文章变成科普视频的开源工作流**  
+*An open-source pipeline to turn technical content into explainer videos*
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-blue)](https://python.org)
+[![Node 20+](https://img.shields.io/badge/Node-20%2B-green)](https://nodejs.org)
+[![Platform: macOS](https://img.shields.io/badge/Platform-macOS%20M-lightgrey)](https://apple.com)
+
+[📖 文档](#文档) · [🚀 快速开始](#快速开始) · [🎞️ 示例](#示例) · [🗺️ 路线图](#路线图)
+
+</div>
 
 ---
 
 ## 项目简介
 
-本项目用于制作系列 Micro LED 大众科普短视频，采用规范化工程结构管理所有资产、脚本、配置与产出物，可直接导入 OpenClaw 复用，也可上传 GitHub 开源归档。
+TechScript Video Pipeline 是一套**本地优先、可复刻**的技术讲解视频生成工作流。  
+它把「写一篇技术文章」这件事，标准化地转化成「一段有动画、有配音、有字幕的科普短视频」。
 
-## 核心定位
+### 核心能力
 
-| 维度 | 说明 |
-|------|------|
-| 受众 | 普通大众，无需专业背景 |
-| 时长 | 60 秒以内（短视频平台标准） |
-| 画面 | 16:9 横屏 1080P（1920×1080） |
-| 风格 | 科技简约蓝白风，动态信息图 |
-| 语言 | 普通话配音 + 同步中文字幕 |
-| 音乐 | 轻柔科技风背景音乐 |
+| 能力 | 工具 | 说明 |
+|------|------|------|
+| 动画渲染（产业/数据类） | HyperFrames (GSAP + HTML) | 浏览器动画 → CDP 截帧 → MP4 |
+| 动画渲染（技术/算法类） | Manim | 数学几何动画，3Blue1Brown 风格 |
+| 多 backend 配音 | Edge-TTS / CosyVoice3 / ElevenLabs | 可插拔 TTS 抽象层 |
+| 声音克隆 | CosyVoice3 zero-shot | 本地离线，15s 样本即可 |
+| 音画对齐 | ffprobe + auto_schedule.mjs | 自动测段长、生成 schedule |
+| 视频合成 | FFmpeg | 画面 + 多轨配音 → 最终 MP4 |
 
-## 目录结构
+### 内容类型 × 工具选择
 
 ```
-microled-science-video/
-├── README.md               # 本文件
-├── PROJECT.md              # 项目规划与里程碑
-├── .openclaw/
-│   └── project.json        # OpenClaw 项目配置
-├── .github/
-│   └── workflows/          # CI/CD（可选）
-├── config/
-│   ├── video.json          # 视频技术参数
-│   ├── brand.json          # 品牌色彩字体配置
-│   └── tts.json            # 配音参数
-├── scripts/
-│   ├── ep01_intro.md       # EP01 完整文案脚本
-│   └── template_episode.md # 单集脚本模板
-├── templates/
-│   ├── scene_template.md   # 场景卡片模板
-│   └── storyboard.md       # 分镜模板
-├── assets/
-│   ├── images/             # 场景图像素材
-│   ├── audio/              # 配音 + 背景音乐
-│   ├── video/              # 中间视频素材
-│   └── fonts/              # 字体文件
-├── production/
-│   └── scenes/             # 分场景制作文件
-└── output/                 # 最终输出视频
+技术/算法类  ──▶  Manim          (数学推导、几何原理)
+产业/上下游  ──▶  HyperFrames    (流程图、产业链、公司对比)
+数据/图表类  ──▶  HyperFrames    (柱状图、趋势线、饼图)
 ```
+
+---
 
 ## 快速开始
 
-### 1. 制作新一集视频
+### 环境要求
 
-1. 复制 `scripts/template_episode.md` → 填写文案
-2. 按 `templates/scene_template.md` 拆分场景
-3. 用 OpenClaw 生成各场景图像素材
-4. 用 `sag` 工具生成普通话配音
-5. 用 `music_generate` 生成背景音乐
-6. 用 `remotion-video-toolkit` 合成最终视频
+- macOS（Apple Silicon 优化，M1/M2/M3 均可）
+- Python 3.9+
+- Node.js 20+
+- Google Chrome（用于 CDP 渲染）
+- FFmpeg
 
-### 2. 导入 OpenClaw
-
-```bash
-# 在 OpenClaw workspace 中直接引用
-cd ~/.openclaw/workspace
-ln -s ~/Projects/microled-science-video projects/microled-science-video
-```
-
-### 3. 上传 GitHub
+### 1. 克隆项目
 
 ```bash
-cd ~/Projects/microled-science-video
-git remote add origin https://github.com/Kevin-Kaiyo/microled-science-video.git
-git push -u origin main
+git clone https://github.com/Kevin-Kaiyo/microled-science-video.git
+cd microled-science-video
 ```
 
-## 系列规划
+### 2. 安装 Python 依赖
 
-| 集数 | 主题 | 状态 |
-|------|------|------|
-| EP01 | Micro LED 是什么？ | ✅ 脚本完成 |
-| EP02 | 为什么比 OLED 更好？ | 📝 规划中 |
-| EP03 | Micro LED 在哪里用？ | 📝 规划中 |
-| EP04 | 未来的显示技术路线图 | 📝 规划中 |
+```bash
+python3 -m venv .venv-tts
+source .venv-tts/bin/activate
+pip install edge-tts requests tabulate
+```
 
-## 版权
+### 3. 安装 Node 依赖（仅渲染器需要）
 
-© 2026 Kaiyo Nan / Artronex | CC BY-NC 4.0
+```bash
+cd /tmp && npm install ws
+```
+
+### 4. （可选）安装 CosyVoice（本地 TTS）
+
+```bash
+# 参考 docs/SETUP_COSYVOICE.md
+```
+
+### 5. 配置 API Keys（可选）
+
+```bash
+cp .env.example .env
+# 编辑 .env，填入需要的 key（edge-tts 不需要 key）
+```
+
+### 6. 生成一集视频
+
+```bash
+# 查看示例集数
+ls episodes/
+
+# 生成配音
+python pipeline/tts_cli.py --provider edge --voice zh-CN-YunjianNeural --ep demo-industry
+
+# 自动对齐 schedule
+node pipeline/auto_schedule.mjs episodes/demo-industry
+
+# 启动 HTTP 渲染服务（新终端）
+cd episodes/demo-industry/animations/hyperframes && python3 -m http.server 18234
+
+# 渲染帧
+node pipeline/render_cdp_resumable.mjs 24 40 /tmp/demo-industry_frames demo-industry \
+  "http://localhost:18234/index.html" 400
+
+# 合成最终视频
+bash pipeline/build_episode.sh demo-industry
+```
+
+---
+
+## 示例
+
+本项目内置三个示例集数，覆盖三种内容类型：
+
+| 集数 | 类型 | 主题 | 时长 |
+|------|------|------|------|
+| `demo-tech` | 技术/工艺 | Micro LED 巨量转移 | ~45s |
+| `demo-industry` | 产业链 | Micro LED 上中下游全景 | ~40s |
+| `demo-data` | 数据图表 | 全球显示市场增长 | ~36s |
+
+---
+
+## 文档
+
+- [🏗️ 架构设计](docs/ARCHITECTURE.md) — 系统组件与数据流
+- [🔄 工作流详解](docs/WORKFLOW.md) — 从文章到视频的完整步骤
+- [⚙️ 环境搭建](docs/SETUP.md) — 安装、配置、常见问题
+- [🔊 TTS 配置](docs/TTS.md) — 各 backend 对比与使用方法
+- [🤝 贡献指南](CONTRIBUTING.md)
+
+---
+
+## 路线图
+
+- [x] HyperFrames 渲染管线（CDP 断点续传）
+- [x] 多 backend TTS 抽象层（Edge / CosyVoice3 / ElevenLabs / MiniMax / Google）
+- [x] 音画自动对齐（ffprobe → auto_schedule）
+- [x] 声音克隆（CosyVoice3 zero-shot，本地离线）
+- [ ] Manim 技术类动画模板
+- [ ] 字幕自动生成（Whisper）
+- [ ] 一键生成脚本（LLM → script.md）
+- [ ] GitHub Actions 自动化构建
+
+---
+
+## 许可证
+
+代码部分：[MIT License](LICENSE)
+
+**注意**：本项目使用 [GSAP](https://gsap.com/licensing/) 进行动画渲染。  
+GSAP 在**非商业用途**下免费使用。如需商业部署，请购买 GSAP 商业授权。
+
+详见 [NOTICE](NOTICE)。
+
+---
+
+<div align="center">
+Made with ❤️ by <a href="https://github.com/Kevin-Kaiyo">Kaiyo Nan</a> · <a href="https://kaiyo-blog.pages.dev">Blog</a>
+</div>

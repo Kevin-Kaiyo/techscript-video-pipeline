@@ -1,0 +1,12 @@
+{
+  "comment": "EP01 配音时间表 — 各段在视频中的起始位置（ms），与 index.html 的 GSAP timeline 一一对应",
+  "voice_volume": 1.6,
+  "tracks": [
+    { "file": "ep01_s01.mp3", "start_ms": 300,   "desc": "你有没有想过，手机屏幕里的光是怎么来的" },
+    { "file": "ep01_s02.mp3", "start_ms": 5500,  "desc": "LCD/OLED/MicroLED 对比" },
+    { "file": "ep01_s03.mp3", "start_ms": 17000, "desc": "下一个时代的答案" },
+    { "file": "ep01_s04.mp3", "start_ms": 20500, "desc": "原理：几百万颗微型LED" },
+    { "file": "ep01_s05.mp3", "start_ms": 32500, "desc": "四大优势" },
+    { "file": "ep01_s06.mp3", "start_ms": 46000, "desc": "应用场景 + 收尾" }
+  ]
+}

@@ -1,22 +1,43 @@
-# .gitignore — Micro LED Science Video Project
+# ===== Generated outputs (DO NOT commit large media) =====
+episodes/*/output/*.mp4
+episodes/*/output/*.mov
+episodes/*/animations/hyperframes/renders/
+/tmp/
 
-# Output (大文件，不提交)
-output/
-*.mp4
-*.mov
-*.avi
+# ===== TTS bake-off (local experiments) =====
+tts-bake-off/
 
-# 临时文件
-*.tmp
-*.bak
+# ===== Python envs =====
+.venv/
+.venv-tts/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# ===== Node =====
+node_modules/
+
+# ===== OS =====
 .DS_Store
 Thumbs.db
+*.tmp
+*.bak
 
-# 原始素材（可选，视文件大小决定是否提交）
-# assets/audio/voiceover/
-# assets/video/
-
-# 环境配置
+# ===== Sensitive =====
 .env
 *.key
-.venv/
+*.pem
+
+# ===== Voice samples (personal, not for public repo) =====
+voices/kevin/prompt_raw.wav
+voices/kevin/kevin_clone_test.*
+
+# ===== Old structure (migrated away) =====
+assets/audio/
+assets/images/
+config/
+scripts/
+production/
+templates/
+pipeline/math_video_pipeline

@@ -1,0 +1,35 @@
+{
+  "tracks": [
+    {
+      "id": "s01",
+      "file": "demo-industry_s01.mp3",
+      "start_ms": 0,
+      "duration_s": 5.4
+    },
+    {
+      "id": "s02",
+      "file": "demo-industry_s02.mp3",
+      "start_ms": 5700,
+      "duration_s": 6.216
+    },
+    {
+      "id": "s03",
+      "file": "demo-industry_s03.mp3",
+      "start_ms": 12216,
+      "duration_s": 9.552
+    },
+    {
+      "id": "s04",
+      "file": "demo-industry_s04.mp3",
+      "start_ms": 22068,
+      "duration_s": 8.376
+    },
+    {
+      "id": "s05",
+      "file": "demo-industry_s05.mp3",
+      "start_ms": 30744,
+      "duration_s": 8.904
+    }
+  ],
+  "total_duration": 39.648
+}

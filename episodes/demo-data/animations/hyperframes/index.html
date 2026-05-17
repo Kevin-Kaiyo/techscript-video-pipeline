@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700;900&family=JetBrains+Mono:wght@400;700;900&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: #050810; }
+      #stage {
+        position: relative; width: 1920px; height: 1080px; overflow: hidden;
+        font-family: "Noto Sans SC", sans-serif; color: #fff;
+        background: radial-gradient(ellipse at 50% 50%, #0a1428 0%, #050810 60%, #02050a 100%);
+      }
+      #bg-grid {
+        position: absolute; inset: 0;
+        background-image:
+          linear-gradient(rgba(100,180,255,0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(100,180,255,0.05) 1px, transparent 1px);
+        background-size: 80px 80px; z-index: 1;
+      }
+
+      /* ====== S1: 大数字翻牌 ====== */
+      #s1 { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 30px; }
+      #s1-year {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 48px; color: rgba(0,217,255,0.8); letter-spacing: 8px;
+      }
+      #s1-headline { font-size: 56px; font-weight: 700; letter-spacing: 4px; color: #fff; }
+      #s1-num {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 300px; font-weight: 900; line-height: 1;
+        background: linear-gradient(135deg, #00d9ff 0%, #fff 50%, #0080ff 100%);
+        -webkit-background-clip: text; background-clip: text; color: transparent;
+      }
+      #s1-currency { font-size: 64px; font-weight: 700; color: #00d9ff; margin-top: 10px; }
+      #s1-sub { font-size: 36px; color: rgba(255,255,255,0.7); letter-spacing: 6px; margin-top: 10px; }
+
+      /* ====== S2: 三柱状对比 ====== */
+      #s2 { position: absolute; inset: 0; z-index: 5; padding: 80px 120px; }
+      #s2-title { font-size: 48px; font-weight: 700; letter-spacing: 4px; margin-bottom: 30px; text-align: center; }
+      #s2-title .accent { color: #00d9ff; }
+
+      #bars-container {
+        display: flex; align-items: flex-end; justify-content: space-around;
+        height: 600px;
+        padding: 0 100px;
+        position: relative;
+      }
+      .bar-axis {
+        position: absolute; left: 100px; right: 100px; bottom: 0;
+        border-bottom: 2px solid rgba(0,217,255,0.3);
+      }
+      .bar-col { display: flex; flex-direction: column; align-items: center; gap: 16px; height: 100%; justify-content: flex-end; }
+      .bar-val {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 64px; font-weight: 900; line-height: 1;
+        opacity: 0;
+      }
+      .bar-val .pct { font-size: 38px; }
+      .bar-shape {
+        width: 200px; border-radius: 14px 14px 0 0;
+        height: 0;
+        position: relative;
+      }
+      .bar-shape.b1 { background: linear-gradient(180deg, #ffd060 0%, #ff8800 100%); box-shadow: 0 0 30px rgba(255,180,0,0.3); }
+      .bar-shape.b2 { background: linear-gradient(180deg, #c090ff 0%, #6040cc 100%); box-shadow: 0 0 30px rgba(160,100,255,0.3); }
+      .bar-shape.b3 { background: linear-gradient(180deg, #00d9ff 0%, #0080ff 100%); box-shadow: 0 0 40px rgba(0,217,255,0.5); }
+      .bar-label {
+        font-size: 36px; font-weight: 700; letter-spacing: 3px;
+        margin-top: 16px;
+      }
+      .b1-color { color: #ffd060; } .b2-color { color: #c090ff; } .b3-color { color: #00d9ff; }
+
+      /* ====== S3: 趋势线 ====== */
+      #s3 { position: absolute; inset: 0; z-index: 5; padding: 60px 120px; }
+      #s3-title { font-size: 48px; font-weight: 700; letter-spacing: 4px; margin-bottom: 20px; }
+      #s3-title .accent { color: #00d9ff; }
+      #trend-wrap {
+        position: relative; width: 100%; height: 720px;
+        background: rgba(0,30,60,0.3); border-radius: 16px;
+        padding: 50px 60px 80px 100px;
+      }
+      #trend-svg { width: 100%; height: 100%; }
+      .y-axis-label, .x-axis-label {
+        font-family: "JetBrains Mono", monospace;
+        fill: rgba(255,255,255,0.6); font-size: 22px;
+      }
+      .grid-line { stroke: rgba(0,217,255,0.1); stroke-width: 1; }
+      .axis-line { stroke: rgba(0,217,255,0.4); stroke-width: 2; }
+      .trend-path {
+        fill: none; stroke: url(#trendgrad); stroke-width: 6;
+        stroke-linecap: round; stroke-linejoin: round;
+        filter: drop-shadow(0 0 12px rgba(0,217,255,0.5));
+      }
+      .trend-dot {
+        fill: #00d9ff;
+        filter: drop-shadow(0 0 8px rgba(0,217,255,0.8));
+      }
+      .data-label {
+        font-family: "JetBrains Mono", monospace;
+        fill: #00d9ff; font-size: 26px; font-weight: 900;
+      }
+      #cagr-badge {
+        position: absolute; top: 80px; left: 80px;
+        padding: 24px 36px;
+        background: rgba(255,80,80,0.15);
+        border: 2px solid #ff6080;
+        border-radius: 16px;
+        text-align: center; opacity: 0;
+      }
+      #cagr-badge .cagr-val {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 80px; font-weight: 900; color: #ff6080; line-height: 1;
+      }
+      #cagr-badge .cagr-label { font-size: 26px; color: #ff8090; letter-spacing: 3px; margin-top: 6px; }
+
+      /* ====== S4: 翻牌预测 ====== */
+      #s4 { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 30px; }
+      #s4-pre {
+        font-size: 42px; color: rgba(255,255,255,0.7); letter-spacing: 6px;
+      }
+      #s4-year-row { display: flex; align-items: baseline; gap: 60px; font-family: "JetBrains Mono", monospace; }
+      .s4-year { font-size: 80px; color: rgba(0,217,255,0.7); letter-spacing: 4px; }
+      #s4-arrow { font-size: 80px; color: #00d9ff; }
+      #s4-num-target {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 280px; font-weight: 900; line-height: 1;
+        background: linear-gradient(135deg, #ff6b00 0%, #ffd060 50%, #00d9ff 100%);
+        -webkit-background-clip: text; background-clip: text; color: transparent;
+      }
+      #s4-tag { font-size: 56px; font-weight: 700; color: #00d9ff; margin-top: 10px; letter-spacing: 6px; }
+      #s4-multiplier {
+        margin-top: 30px; padding: 16px 50px;
+        background: rgba(255,107,0,0.2);
+        border: 2px solid #ff8800;
+        border-radius: 50px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 64px; font-weight: 900; color: #ffaa00;
+        letter-spacing: 6px;
+      }
+
+      /* ====== S5: 厂商背书 ====== */
+      #s5 { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 50px; }
+      #s5-title { font-size: 56px; font-weight: 700; letter-spacing: 4px; }
+      #s5-title .accent { color: #00d9ff; }
+      #s5-brands { display: flex; gap: 60px; }
+      .brand-card {
+        width: 320px; padding: 50px 30px;
+        background: rgba(10,30,60,0.6);
+        border: 2px solid rgba(0,217,255,0.4);
+        border-radius: 20px;
+        text-align: center;
+      }
+      .brand-icon { font-size: 100px; margin-bottom: 16px; }
+      .brand-name { font-size: 44px; font-weight: 900; letter-spacing: 4px; }
+      .brand-desc { font-size: 22px; color: rgba(255,255,255,0.6); margin-top: 10px; letter-spacing: 2px; }
+      #s5-final {
+        font-size: 64px; font-weight: 900; letter-spacing: 8px;
+        background: linear-gradient(135deg, #00d9ff 0%, #fff 50%, #0080ff 100%);
+        -webkit-background-clip: text; background-clip: text; color: transparent;
+      }
+
+      /* 字幕 */
+      #subtitle {
+        position: absolute; bottom: 30px; left: 50%;
+        font-size: 38px; color: #fff;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.95), 0 0 4px #000;
+        letter-spacing: 3px; white-space: nowrap; z-index: 20;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage" data-composition-id="demo-data" data-start="0" data-duration="42" data-width="1920" data-height="1080">
+      <div id="bg-grid"></div>
+
+      <!-- S1 (0-6s) -->
+      <div id="s1" style="visibility:hidden;opacity:0;">
+        <div id="s1-year">2024</div>
+        <div id="s1-headline">全球显示面板市场规模</div>
+        <div id="s1-num">0</div>
+        <div id="s1-currency">亿美元</div>
+        <div id="s1-sub">数据来源 · Omdia / Yole</div>
+      </div>
+
+      <!-- S2 (6-14s) -->
+      <div id="s2" style="visibility:hidden;opacity:0;">
+        <div id="s2-title">三大显示技术 · <span class="accent">当前市占率</span></div>
+        <div id="bars-container">
+          <div class="bar-axis"></div>
+          <div class="bar-col">
+            <div class="bar-val b1-color" id="v1">60<span class="pct">%</span></div>
+            <div class="bar-shape b1" id="bar1"></div>
+            <div class="bar-label b1-color">LCD</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar-val b2-color" id="v2">35<span class="pct">%</span></div>
+            <div class="bar-shape b2" id="bar2"></div>
+            <div class="bar-label b2-color">OLED</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar-val b3-color" id="v3">&lt;1<span class="pct">%</span></div>
+            <div class="bar-shape b3" id="bar3"></div>
+            <div class="bar-label b3-color">Micro LED</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S3 (14-24s) -->
+      <div id="s3" style="visibility:hidden;opacity:0;">
+        <div id="s3-title">但 <span class="accent">Micro LED 增长曲线</span> 完全不同</div>
+        <div id="trend-wrap">
+          <svg id="trend-svg" viewBox="0 0 1600 600" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="trendgrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#0080ff"/>
+                <stop offset="100%" stop-color="#00d9ff"/>
+              </linearGradient>
+              <linearGradient id="fillgrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="rgba(0,217,255,0.4)"/>
+                <stop offset="100%" stop-color="rgba(0,217,255,0.0)"/>
+              </linearGradient>
+            </defs>
+            <!-- grid -->
+            <line class="grid-line" x1="0" y1="120" x2="1600" y2="120"/>
+            <line class="grid-line" x1="0" y1="240" x2="1600" y2="240"/>
+            <line class="grid-line" x1="0" y1="360" x2="1600" y2="360"/>
+            <line class="grid-line" x1="0" y1="480" x2="1600" y2="480"/>
+            <line class="axis-line" x1="0" y1="560" x2="1600" y2="560"/>
+            <line class="axis-line" x1="0" y1="0" x2="0" y2="560"/>
+            <!-- y labels -->
+            <text class="y-axis-label" x="-80" y="565" text-anchor="start">$0.1B</text>
+            <text class="y-axis-label" x="-80" y="485" text-anchor="start">$1B</text>
+            <text class="y-axis-label" x="-80" y="365" text-anchor="start">$2B</text>
+            <text class="y-axis-label" x="-80" y="245" text-anchor="start">$3.5B</text>
+            <text class="y-axis-label" x="-80" y="125" text-anchor="start">$5B</text>
+            <!-- x labels -->
+            <text class="x-axis-label" x="0" y="600">2024</text>
+            <text class="x-axis-label" x="320" y="600">2025</text>
+            <text class="x-axis-label" x="640" y="600">2026</text>
+            <text class="x-axis-label" x="960" y="600">2027</text>
+            <text class="x-axis-label" x="1280" y="600">2028</text>
+            <text class="x-axis-label" x="1530" y="600">2030</text>
+            <!-- area fill -->
+            <path id="area-path" d="M 0 555 L 0 555 L 320 540 L 640 510 L 960 440 L 1280 320 L 1600 120 L 1600 560 L 0 560 Z"
+              fill="url(#fillgrad)" opacity="0"/>
+            <!-- trend line -->
+            <path class="trend-path" id="trend-line"
+              d="M 0 555 L 320 540 L 640 510 L 960 440 L 1280 320 L 1600 120"
+              stroke-dasharray="2200" stroke-dashoffset="2200"/>
+            <!-- dots + labels -->
+            <g id="dot1" opacity="0"><circle class="trend-dot" cx="0" cy="555" r="10"/><text class="data-label" x="20" y="555">$0.1B</text></g>
+            <g id="dot5" opacity="0"><circle class="trend-dot" cx="1600" cy="120" r="14"/><text class="data-label" x="1490" y="105" text-anchor="end">$5B</text></g>
+          </svg>
+          <div id="cagr-badge">
+            <div class="cagr-val">+70%</div>
+            <div class="cagr-label">CAGR 年复合增长率</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S4 (24-31s) -->
+      <div id="s4" style="visibility:hidden;opacity:0;">
+        <div id="s4-pre">机构预测 · 2030 年</div>
+        <div id="s4-year-row">
+          <span class="s4-year">2024</span>
+          <span id="s4-arrow">→</span>
+          <span class="s4-year">2030</span>
+        </div>
+        <div id="s4-num-target">$5<span style="font-size:160px;">B</span></div>
+        <div id="s4-tag">MicroLED 市场规模</div>
+        <div id="s4-multiplier">5 年 × 50 倍</div>
+      </div>
+
+      <!-- S5 (31-38s) -->
+      <div id="s5" style="visibility:hidden;opacity:0;">
+        <div id="s5-title">下一代显示 · <span class="accent">已经开跑</span></div>
+        <div id="s5-brands">
+          <div class="brand-card"><div class="brand-icon"><svg viewBox="0 0 40 40" fill="none" width="44" height="44"><rect x="4" y="8" width="32" height="22" rx="3" stroke="#00d9ff" stroke-width="2"/><rect x="8" y="12" width="24" height="14" rx="1" fill="rgba(0,217,255,0.15)"/><rect x="14" y="32" width="12" height="3" rx="1" fill="rgba(0,217,255,0.5)"/><circle cx="20" cy="19" r="3" fill="rgba(0,217,255,0.7)"/></svg></div><div class="brand-name">Apple</div><div class="brand-desc">智能手表 / Vision Pro</div></div>
+          <div class="brand-card"><div class="brand-icon"><svg viewBox="0 0 40 40" fill="none" width="44" height="44"><rect x="4" y="4" width="32" height="32" rx="3" stroke="#00d9ff" stroke-width="2" fill="rgba(0,217,255,0.05)"/><rect x="10" y="10" width="8" height="8" rx="1" fill="rgba(0,217,255,0.5)"/><rect x="22" y="10" width="8" height="8" rx="1" fill="rgba(0,217,255,0.3)"/><rect x="10" y="22" width="8" height="8" rx="1" fill="rgba(0,217,255,0.3)"/><rect x="22" y="22" width="8" height="8" rx="1" fill="rgba(0,217,255,0.5)"/></svg></div><div class="brand-name">Samsung</div><div class="brand-desc">The Wall · 110″ 4K</div></div>
+          <div class="brand-card"><div class="brand-icon"><svg viewBox="0 0 40 40" fill="none" width="44" height="44"><rect x="3" y="7" width="34" height="26" rx="3" stroke="#00d9ff" stroke-width="2"/><rect x="7" y="11" width="26" height="18" rx="1" fill="rgba(0,217,255,0.1)"/><line x1="13" y1="19" x2="27" y2="19" stroke="#00d9ff" stroke-width="1.5"/><line x1="13" y1="23" x2="22" y2="23" stroke="rgba(0,217,255,0.6)" stroke-width="1.5"/><circle cx="24" cy="19" r="4" stroke="#00d9ff" stroke-width="1.5" fill="rgba(0,217,255,0.25)"/></svg></div><div class="brand-name">Sony</div><div class="brand-desc">广电级监视器</div></div>
+        </div>
+        <div id="s5-final">已写入未来五年路线图</div>
+      </div>
+
+      <div id="subtitle"></div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+
+      gsap.set(["#s1","#s2","#s3","#s4","#s5"], { opacity: 0, visibility: "hidden" });
+      gsap.set("#subtitle", { x: "-50%", opacity: 0 });
+
+      const tl = gsap.timeline({ paused: true });
+      tl.set(["#s1","#s2","#s3","#s4","#s5"], { opacity: 0, visibility: "hidden" }, 0);
+      tl.set("#subtitle", { x: "-50%", opacity: 0 }, 0);
+
+      // ═══ S1: 0-6s 1200 翻牌 ═══
+      tl.set("#s1", { visibility: "visible" }, 0);
+      tl.to("#s1", { opacity: 1, duration: 0.5 }, 0.2);
+      tl.from("#s1-year", { y: -20, opacity: 0, duration: 0.5 }, 0.5);
+      tl.from("#s1-headline", { y: 20, opacity: 0, duration: 0.5 }, 1.0);
+
+      const numObj = { v: 0 };
+      tl.to(numObj, {
+        v: 1200, duration: 2.2, ease: "power2.out",
+        onUpdate: () => { document.getElementById("s1-num").textContent = Math.round(numObj.v).toLocaleString(); }
+      }, 1.8);
+      tl.from("#s1-currency", { y: 20, opacity: 0, duration: 0.5 }, 3.8);
+      tl.from("#s1-sub", { y: 15, opacity: 0, duration: 0.5 }, 4.5);
+
+      tl.call(() => { document.getElementById('subtitle').textContent = "2024 显示面板市场 · $1,200 亿美元"; }, [], 0.5);
+      tl.to("#subtitle", { opacity: 1, duration: 0.4 }, 0.5);
+      tl.to("#subtitle", { opacity: 0, duration: 0.4 }, 5.4);
+
+      tl.to("#s1", { opacity: 0, duration: 0.5 }, 5.5);
+      tl.set("#s1", { visibility: "hidden" }, 6.0);
+
+      // ═══ S2: 6-14s 三柱状 ═══
+      tl.set("#s2", { visibility: "visible" }, 5.9);
+      tl.to("#s2", { opacity: 1, duration: 0.5 }, 6.0);
+      tl.from("#s2-title", { y: -20, opacity: 0, duration: 0.6 }, 6.3);
+
+      // 柱子动画（max height 600px, 60%=360, 35%=210, <1%=12）
+      tl.to("#bar1", { height: 360, duration: 1.0, ease: "power2.out" }, 7.0);
+      tl.to("#v1", { opacity: 1, duration: 0.3 }, 7.8);
+      tl.to("#bar2", { height: 210, duration: 1.0, ease: "power2.out" }, 8.5);
+      tl.to("#v2", { opacity: 1, duration: 0.3 }, 9.3);
+      tl.to("#bar3", { height: 12, duration: 0.8, ease: "power2.out" }, 10.0);
+      tl.to("#v3", { opacity: 1, duration: 0.3 }, 10.6);
+
+      // 高亮 MicroLED 小柱子（脉冲）
+      tl.to("#bar3", { boxShadow: "0 0 60px rgba(0,217,255,0.9)", duration: 0.4, repeat: 3, yoyo: true }, 11.2);
+
+      tl.call(() => { document.getElementById('subtitle').textContent = "LCD 60% · OLED 35% · MicroLED < 1%"; }, [], 7.0);
+      tl.to("#subtitle", { opacity: 1, duration: 0.4 }, 7.0);
+      tl.to("#subtitle", { opacity: 0, duration: 0.4 }, 13.0);
+
+      tl.to("#s2", { opacity: 0, duration: 0.5 }, 13.3);
+      tl.set("#s2", { visibility: "hidden" }, 13.9);
+
+      // ═══ S3: 14-24s 趋势线 ═══
+      tl.set("#s3", { visibility: "visible" }, 13.8);
+      tl.to("#s3", { opacity: 1, duration: 0.5 }, 14.0);
+      tl.from("#s3-title", { y: -20, opacity: 0, duration: 0.6 }, 14.3);
+
+      // 线条绘制（stroke-dashoffset 0→2200）
+      tl.to("#trend-line", { strokeDashoffset: 0, duration: 3.0, ease: "power2.inOut" }, 15.0);
+      tl.to("#area-path", { opacity: 1, duration: 1.0 }, 17.0);
+      tl.to("#dot1", { opacity: 1, duration: 0.3 }, 15.0);
+      tl.to("#dot5", { opacity: 1, duration: 0.5 }, 17.8);
+
+      // CAGR badge
+      tl.fromTo("#cagr-badge", { scale: 0.5, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.7, ease: "back.out(1.7)" }, 19.0);
+
+      tl.call(() => { document.getElementById('subtitle').textContent = "MicroLED 年复合增长率 +70%"; }, [], 15.5);
+      tl.to("#subtitle", { opacity: 1, duration: 0.4 }, 15.5);
+      tl.to("#subtitle", { opacity: 0, duration: 0.4 }, 23.0);
+
+      tl.to("#s3", { opacity: 0, duration: 0.5 }, 23.3);
+      tl.set("#s3", { visibility: "hidden" }, 23.9);
+
+      // ═══ S4: 24-31s 翻牌预测 ═══
+      tl.set("#s4", { visibility: "visible" }, 23.8);
+      tl.to("#s4", { opacity: 1, duration: 0.5 }, 24.0);
+      tl.from("#s4-pre", { y: -20, opacity: 0, duration: 0.5 }, 24.3);
+      tl.from("#s4-year-row", { y: 20, opacity: 0, duration: 0.6 }, 24.9);
+
+      tl.from("#s4-num-target", { scale: 0.5, opacity: 0, duration: 0.9, ease: "back.out(1.6)" }, 25.8);
+      tl.from("#s4-tag", { y: 20, opacity: 0, duration: 0.5 }, 26.9);
+      tl.from("#s4-multiplier", { scale: 0.7, opacity: 0, duration: 0.7, ease: "back.out(1.8)" }, 27.5);
+      tl.to("#s4-multiplier", { scale: 1.06, duration: 0.4, repeat: 3, yoyo: true }, 28.4);
+
+      tl.call(() => { document.getElementById('subtitle').textContent = "2030 预测 · $5B · 5 年 ×50 倍"; }, [], 24.5);
+      tl.to("#subtitle", { opacity: 1, duration: 0.4 }, 24.5);
+      tl.to("#subtitle", { opacity: 0, duration: 0.4 }, 30.0);
+
+      tl.to("#s4", { opacity: 0, duration: 0.5 }, 30.2);
+      tl.set("#s4", { visibility: "hidden" }, 30.8);
+
+      // ═══ S5: 31-38s 厂商背书 ═══
+      tl.set("#s5", { visibility: "visible" }, 30.7);
+      tl.to("#s5", { opacity: 1, duration: 0.5 }, 30.9);
+      tl.from("#s5-title", { y: -20, opacity: 0, duration: 0.6 }, 31.2);
+      tl.from(".brand-card", { y: 50, opacity: 0, duration: 0.6, stagger: 0.3, ease: "back.out(1.3)" }, 32.0);
+      tl.from("#s5-final", { scale: 0.7, opacity: 0, duration: 0.9, ease: "back.out(1.5)" }, 34.5);
+
+      tl.call(() => { document.getElementById('subtitle').textContent = "Apple · Samsung · Sony 已写入路线图"; }, [], 31.5);
+      tl.to("#subtitle", { opacity: 1, duration: 0.4 }, 31.5);
+      tl.to("#subtitle", { opacity: 0, duration: 0.4 }, 40.0);
+
+      tl.to("#s5", { opacity: 0, duration: 0.8 }, 40.5);
+
+      window.__timelines["demo-data"] = tl;
+    </script>
+  </body>
+</html>

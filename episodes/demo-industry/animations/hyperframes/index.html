@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: #050810; }
+      #stage {
+        position: relative; width: 1920px; height: 1080px; overflow: hidden;
+        font-family: "Noto Sans SC", sans-serif; color: #fff;
+        background: radial-gradient(ellipse at 50% 50%, #0a1428 0%, #050810 60%, #02050a 100%);
+      }
+      #bg-grid {
+        position: absolute; inset: 0;
+        background-image:
+          linear-gradient(rgba(100,180,255,0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(100,180,255,0.05) 1px, transparent 1px);
+        background-size: 80px 80px;
+        z-index: 1;
+      }
+
+      /* ====== S1: hook ====== */
+      #s1 { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 40px; }
+      #s1-line1 { font-size: 64px; font-weight: 300; letter-spacing: 6px; color: rgba(255,255,255,0.85); }
+      #s1-emoji-row { display: flex; align-items: center; gap: 80px; margin: 30px 0; }
+      .e-step {
+        display: flex; flex-direction: column; align-items: center; gap: 12px;
+        opacity: 0;
+      }
+      .e-icon {
+        width: 100px; height: 100px;
+        display: flex; align-items: center; justify-content: center;
+        filter: drop-shadow(0 0 20px rgba(0,217,255,0.5));
+      }
+      .e-icon svg { width: 96px; height: 96px; }
+      .e-label { font-size: 28px; color: rgba(255,255,255,0.7); letter-spacing: 3px; }
+      .e-arrow {
+        opacity: 0; display: flex; align-items: center;
+      }
+      .e-arrow svg { width: 56px; height: 28px; }
+      #s1-num {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 140px; font-weight: 900;
+        background: linear-gradient(135deg, #00d9ff, #0080ff);
+        -webkit-background-clip: text; background-clip: text; color: transparent;
+        line-height: 1; margin-top: 30px;
+      }
+      #s1-num-sub { font-size: 36px; color: rgba(0,217,255,0.8); letter-spacing: 4px; margin-top: 8px; }
+
+      /* ====== S2-S4: 产业链总图 ====== */
+      #chain-stage { position: absolute; inset: 0; z-index: 5; padding: 80px; }
+      #chain-title {
+        font-size: 56px; font-weight: 700; letter-spacing: 4px;
+        margin-bottom: 50px; text-align: center; opacity: 0;
+      }
+      #chain-title .accent { color: #00d9ff; }
+
+      #chain-flow {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 60px;
+      }
+      .chain-node {
+        flex: 1;
+        background: rgba(10,30,60,0.5);
+        border: 2px solid rgba(0,217,255,0.2);
+        border-radius: 16px;
+        padding: 28px 16px;
+        text-align: center;
+        position: relative;
+        opacity: 0.3;
+        transition: all 0.4s;
+      }
+      .chain-node.active {
+        opacity: 1;
+        border-color: #00d9ff;
+        background: rgba(0,80,160,0.4);
+        box-shadow: 0 0 40px rgba(0,217,255,0.4);
+        transform: translateY(-10px);
+      }
+      .chain-icon { width: 64px; height: 64px; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; }
+      .chain-icon svg { width: 60px; height: 60px; }
+      .chain-name { font-size: 30px; font-weight: 700; letter-spacing: 2px; margin-bottom: 8px; }
+      .chain-stage-label { font-size: 20px; color: rgba(0,217,255,0.7); letter-spacing: 2px; }
+      .chain-arrow {
+        align-self: center; flex-shrink: 0;
+      }
+      .chain-arrow svg { display: block; }
+
+      /* 厂商卡 */
+      #players-area {
+        min-height: 380px;
+        position: relative;
+      }
+      .player-group {
+        position: absolute; inset: 0;
+        display: flex; flex-direction: column; align-items: center; gap: 30px;
+        opacity: 0; visibility: hidden;
+      }
+      .player-group-title {
+        font-size: 38px; color: #00d9ff; letter-spacing: 4px; font-weight: 700;
+      }
+      .player-cards { display: flex; gap: 30px; }
+      .pcard {
+        padding: 24px 40px;
+        background: rgba(0,40,80,0.4);
+        border: 1px solid rgba(0,217,255,0.4);
+        border-radius: 14px;
+        text-align: center; min-width: 220px;
+      }
+      .pcard .cn { font-size: 36px; font-weight: 700; letter-spacing: 2px; }
+      .pcard .en { font-family: "JetBrains Mono", monospace; font-size: 22px; color: rgba(0,217,255,0.7); margin-top: 6px; letter-spacing: 1px; }
+      .pcard.cn-flag { border-color: #ff6060; }
+      .pcard.us-flag { border-color: #ffd060; }
+      .pcard.kr-flag { border-color: #c060ff; }
+      .pcard.jp-flag { border-color: #60ffc0; }
+
+      /* ====== S5: 中国占比 + 卡脖子 ====== */
+      #s5 { position: absolute; inset: 0; z-index: 5; display: flex; align-items: center; justify-content: center; gap: 100px; padding: 80px; }
+      #s5-left { text-align: center; }
+      #pie-wrap { position: relative; width: 400px; height: 400px; margin: 0 auto; }
+      #pie-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+      #pie-center {
+        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        text-align: center;
+      }
+      #pie-num {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 130px; font-weight: 900; color: #00d9ff; line-height: 1;
+      }
+      #pie-pct { font-size: 60px; color: #00d9ff; }
+      #pie-label { font-size: 32px; color: rgba(255,255,255,0.85); margin-top: 30px; letter-spacing: 4px; }
+      #s5-right { flex: 1; max-width: 700px; }
+      #s5-r-title {
+        font-size: 52px; font-weight: 700;
+        color: #ff6080; letter-spacing: 6px; margin-bottom: 30px;
+      }
+      .s5-bullet {
+        display: flex; align-items: center; gap: 24px;
+        font-size: 36px;
+        padding: 24px 30px;
+        background: rgba(255,80,80,0.08);
+        border-left: 4px solid #ff6080;
+        margin-bottom: 18px;
+      }
+      .s5-bullet .flag { font-size: 48px; }
+
+      /* 字幕 */
+      #subtitle {
+        position: absolute; bottom: 60px; left: 50%;
+        font-size: 38px; color: #fff;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.95), 0 0 4px #000;
+        letter-spacing: 3px; white-space: nowrap; z-index: 20;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage" data-composition-id="demo-industry" data-start="0" data-duration="40" data-width="1920" data-height="1080">
+      <div id="bg-grid"></div>
+
+      <!-- S1 (0-6s) -->
+      <div id="s1" style="visibility:hidden;opacity:0;">
+        <div id="s1-line1">从沙子到屏幕，要走几步？</div>
+        <div id="s1-emoji-row">
+          <div class="e-step" id="es1"><div class="e-icon"><svg viewBox="0 0 48 48" fill="none"><polygon points="24,5 43,38 5,38" stroke="#00d9ff" stroke-width="2" fill="rgba(0,217,255,0.1)"/><text x="24" y="32" text-anchor="middle" font-size="13" font-weight="700" fill="#00d9ff" font-family="monospace">Si</text></svg></div><div class="e-label">硅原料</div></div>
+          <div class="e-arrow" id="ea1"><svg viewBox="0 0 56 28" fill="none"><line x1="4" y1="14" x2="46" y2="14" stroke="#00d9ff" stroke-width="2.5" stroke-linecap="round"/><polyline points="38,7 46,14 38,21" stroke="#00d9ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="e-step" id="es2"><div class="e-icon"><svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="20" stroke="#00d9ff" stroke-width="2"/><circle cx="24" cy="24" r="13" stroke="#00d9ff" stroke-width="1.5" stroke-dasharray="4 3"/><circle cx="24" cy="24" r="6" stroke="#00d9ff" stroke-width="1.5"/><circle cx="24" cy="24" r="2" fill="#00d9ff"/><line x1="4" y1="24" x2="44" y2="24" stroke="rgba(0,217,255,0.4)" stroke-width="1"/><line x1="24" y1="4" x2="24" y2="44" stroke="rgba(0,217,255,0.4)" stroke-width="1"/></svg></div><div class="e-label">晶圆</div></div>
+          <div class="e-arrow" id="ea2"><svg viewBox="0 0 56 28" fill="none"><line x1="4" y1="14" x2="46" y2="14" stroke="#00d9ff" stroke-width="2.5" stroke-linecap="round"/><polyline points="38,7 46,14 38,21" stroke="#00d9ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="e-step" id="es3"><div class="e-icon"><svg viewBox="0 0 48 48" fill="none"><rect x="12" y="12" width="24" height="24" rx="3" stroke="#00d9ff" stroke-width="2"/><rect x="19" y="19" width="10" height="10" rx="1" fill="rgba(0,217,255,0.4)" stroke="#00d9ff" stroke-width="1.5"/><circle cx="24" cy="24" r="2" fill="#fff"/><line x1="3" y1="19" x2="12" y2="19" stroke="#00d9ff" stroke-width="1.5"/><line x1="3" y1="29" x2="12" y2="29" stroke="#00d9ff" stroke-width="1.5"/><line x1="36" y1="19" x2="45" y2="19" stroke="#00d9ff" stroke-width="1.5"/><line x1="36" y1="29" x2="45" y2="29" stroke="#00d9ff" stroke-width="1.5"/></svg></div><div class="e-label">LED 芯片</div></div>
+          <div class="e-arrow" id="ea3"><svg viewBox="0 0 56 28" fill="none"><line x1="4" y1="14" x2="46" y2="14" stroke="#00d9ff" stroke-width="2.5" stroke-linecap="round"/><polyline points="38,7 46,14 38,21" stroke="#00d9ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="e-step" id="es4"><div class="e-icon"><svg viewBox="0 0 48 48" fill="none"><rect x="4" y="8" width="40" height="26" rx="3" stroke="#00d9ff" stroke-width="2"/><rect x="8" y="12" width="32" height="18" rx="1" fill="rgba(0,217,255,0.15)"/><rect x="18" y="36" width="12" height="4" rx="1" fill="rgba(0,217,255,0.5)"/><circle cx="24" cy="21" r="4" fill="rgba(0,217,255,0.6)"/><circle cx="24" cy="21" r="1.5" fill="#fff"/></svg></div><div class="e-label">显示屏幕</div></div>
+        </div>
+        <div id="s1-num">5</div>
+        <div id="s1-num-sub">个关键产业环节</div>
+      </div>
+
+      <!-- 持续场景：S2-S4 复用 #chain-stage -->
+      <div id="chain-stage" style="visibility:hidden;opacity:0;">
+        <div id="chain-title"><span class="accent">Micro LED</span> 产业链全景</div>
+
+        <div id="chain-flow">
+          <div class="chain-node" id="n1"><div class="chain-icon"><svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="18" stroke="#00d9ff" stroke-width="2"/><circle cx="24" cy="24" r="11" stroke="#00d9ff" stroke-width="1.5" stroke-dasharray="4 3"/><circle cx="24" cy="24" r="4" stroke="#00d9ff" stroke-width="1.5"/><line x1="6" y1="24" x2="42" y2="24" stroke="rgba(0,217,255,0.35)" stroke-width="1"/><line x1="24" y1="6" x2="24" y2="42" stroke="rgba(0,217,255,0.35)" stroke-width="1"/></svg></div><div class="chain-name">外延片</div><div class="chain-stage-label">上游</div></div>
+          <div class="chain-arrow"><svg viewBox="0 0 36 36" width="36" height="36" fill="none"><line x1="4" y1="18" x2="28" y2="18" stroke="rgba(0,217,255,0.7)" stroke-width="2.5" stroke-linecap="round"/><polyline points="21,11 29,18 21,25" stroke="rgba(0,217,255,0.7)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="chain-node" id="n2"><div class="chain-icon"><svg viewBox="0 0 48 48" fill="none"><rect x="10" y="10" width="28" height="28" rx="4" stroke="#00d9ff" stroke-width="2"/><rect x="16" y="16" width="16" height="16" rx="2" fill="rgba(0,217,255,0.25)" stroke="#00d9ff" stroke-width="1.5"/><line x1="2" y1="18" x2="10" y2="18" stroke="#00d9ff" stroke-width="1.5"/><line x1="2" y1="30" x2="10" y2="30" stroke="#00d9ff" stroke-width="1.5"/><line x1="38" y1="18" x2="46" y2="18" stroke="#00d9ff" stroke-width="1.5"/><line x1="38" y1="30" x2="46" y2="30" stroke="#00d9ff" stroke-width="1.5"/><line x1="18" y1="2" x2="18" y2="10" stroke="#00d9ff" stroke-width="1.5"/><line x1="30" y1="2" x2="30" y2="10" stroke="#00d9ff" stroke-width="1.5"/><line x1="18" y1="38" x2="18" y2="46" stroke="#00d9ff" stroke-width="1.5"/><line x1="30" y1="38" x2="30" y2="46" stroke="#00d9ff" stroke-width="1.5"/></svg></div><div class="chain-name">芯片制造</div><div class="chain-stage-label">中游</div></div>
+          <div class="chain-arrow"><svg viewBox="0 0 36 36" width="36" height="36" fill="none"><line x1="4" y1="18" x2="28" y2="18" stroke="rgba(0,217,255,0.7)" stroke-width="2.5" stroke-linecap="round"/><polyline points="21,11 29,18 21,25" stroke="rgba(0,217,255,0.7)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="chain-node" id="n3"><div class="chain-icon"><svg viewBox="0 0 48 48" fill="none"><rect x="4" y="18" width="16" height="12" rx="2" stroke="#00d9ff" stroke-width="1.5" fill="rgba(0,217,255,0.15)"/><circle cx="12" cy="24" r="3" fill="#00d9ff"/><rect x="28" y="18" width="16" height="12" rx="2" stroke="rgba(0,217,255,0.5)" stroke-width="1.5" fill="rgba(0,217,255,0.05)"/><line x1="22" y1="20" x2="30" y2="24" stroke="#00d9ff" stroke-width="2" stroke-linecap="round"/><line x1="22" y1="28" x2="30" y2="24" stroke="#00d9ff" stroke-width="2" stroke-linecap="round"/><line x1="22" y1="24" x2="30" y2="24" stroke="#00d9ff" stroke-width="2" stroke-linecap="round"/></svg></div><div class="chain-name">巨量转移</div><div class="chain-stage-label">中游</div></div>
+          <div class="chain-arrow"><svg viewBox="0 0 36 36" width="36" height="36" fill="none"><line x1="4" y1="18" x2="28" y2="18" stroke="rgba(0,217,255,0.7)" stroke-width="2.5" stroke-linecap="round"/><polyline points="21,11 29,18 21,25" stroke="rgba(0,217,255,0.7)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="chain-node" id="n4"><div class="chain-icon"><svg viewBox="0 0 48 48" fill="none"><rect x="8" y="16" width="32" height="24" rx="3" stroke="#00d9ff" stroke-width="2" fill="rgba(0,217,255,0.1)"/><polyline points="8,20 24,10 40,20" stroke="#00d9ff" stroke-width="2" stroke-linejoin="round"/><line x1="20" y1="28" x2="28" y2="28" stroke="rgba(0,217,255,0.7)" stroke-width="1.5"/><line x1="20" y1="33" x2="28" y2="33" stroke="rgba(0,217,255,0.7)" stroke-width="1.5"/></svg></div><div class="chain-name">模组封装</div><div class="chain-stage-label">下游</div></div>
+          <div class="chain-arrow"><svg viewBox="0 0 36 36" width="36" height="36" fill="none"><line x1="4" y1="18" x2="28" y2="18" stroke="rgba(0,217,255,0.7)" stroke-width="2.5" stroke-linecap="round"/><polyline points="21,11 29,18 21,25" stroke="rgba(0,217,255,0.7)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="chain-node" id="n5"><div class="chain-icon"><svg viewBox="0 0 48 48" fill="none"><rect x="4" y="8" width="40" height="26" rx="3" stroke="#00d9ff" stroke-width="2"/><rect x="8" y="12" width="32" height="18" rx="1" fill="rgba(0,217,255,0.15)"/><rect x="18" y="36" width="12" height="4" rx="1" fill="rgba(0,217,255,0.5)"/><rect x="14" y="17" width="8" height="8" rx="1" fill="rgba(0,217,255,0.5)"/><rect x="26" y="17" width="8" height="8" rx="1" fill="rgba(0,217,255,0.3)"/></svg></div><div class="chain-name">终端应用</div><div class="chain-stage-label">下游</div></div>
+        </div>
+
+        <div id="players-area">
+          <div class="player-group" id="pg-up">
+            <div class="player-group-title">上游 · 外延片代表玩家</div>
+            <div class="player-cards">
+              <div class="pcard cn-flag"><div class="cn">🇨🇳 三安光电</div><div class="en">San'an Optoelectronics</div></div>
+              <div class="pcard cn-flag"><div class="cn">🇨🇳 华灿光电</div><div class="en">HC SemiTek</div></div>
+              <div class="pcard us-flag"><div class="cn">🇺🇸 EpiPix</div><div class="en">USA</div></div>
+            </div>
+          </div>
+
+          <div class="player-group" id="pg-mid">
+            <div class="player-group-title">中游 · 芯片/巨量转移</div>
+            <div class="player-cards">
+              <div class="pcard cn-flag"><div class="cn">🇨🇳 晶合光电</div><div class="en">JADE Bird Display</div></div>
+              <div class="pcard cn-flag"><div class="cn">🇨🇳 雷曼光电</div><div class="en">Ledman Optoelectronic</div></div>
+              <div class="pcard us-flag"><div class="cn">🇺🇸 Rohinni</div><div class="en">激光转印先驱</div></div>
+            </div>
+          </div>
+
+          <div class="player-group" id="pg-down">
+            <div class="player-group-title">下游 · 终端应用</div>
+            <div class="player-cards">
+              <div class="pcard us-flag"><div class="cn">🇺🇸 Apple</div><div class="en">智能手表 / AR</div></div>
+              <div class="pcard kr-flag"><div class="cn">🇰🇷 Samsung</div><div class="en">The Wall · MICRO LED TV</div></div>
+              <div class="pcard cn-flag"><div class="cn">🇨🇳 TCL</div><div class="en">大屏 MicroLED</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S5 (28-36s) -->
+      <div id="s5" style="visibility:hidden;opacity:0;">
+        <div id="s5-left">
+          <div id="pie-wrap">
+            <svg id="pie-svg" viewBox="0 0 200 200">
+              <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="30"/>
+              <circle id="pie-arc" cx="100" cy="100" r="80" fill="none" stroke="url(#piegrad)" stroke-width="30"
+                stroke-dasharray="502.65" stroke-dashoffset="502.65" stroke-linecap="round"/>
+              <defs>
+                <linearGradient id="piegrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#00d9ff"/>
+                  <stop offset="100%" stop-color="#0080ff"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <div id="pie-center">
+              <span id="pie-num">0</span><span id="pie-pct">%</span>
+            </div>
+          </div>
+          <div id="pie-label">🇨🇳 中国 · 全球产能占比</div>
+        </div>
+        <div id="s5-right">
+          <div id="s5-r-title">⚠ 但高端环节仍卡脖子</div>
+          <div class="s5-bullet"><span class="flag">🇺🇸</span><div>核心专利 / 设计 IP</div></div>
+          <div class="s5-bullet"><span class="flag">🇯🇵</span><div>高端光刻 / MOCVD 设备</div></div>
+          <div class="s5-bullet"><span class="flag">🇩🇪</span><div>精密对准 / 测试仪器</div></div>
+        </div>
+      </div>
+
+      <div id="subtitle"></div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+
+      gsap.set(["#s1","#chain-stage","#s5"], { opacity: 0, visibility: "hidden" });
+      gsap.set("#subtitle", { x: "-50%", opacity: 0 });
+
+      const tl = gsap.timeline({ paused: true });
+      tl.set(["#s1","#chain-stage","#s5"], { opacity: 0, visibility: "hidden" }, 0);
+      tl.set("#subtitle", { x: "-50%", opacity: 0 }, 0);
+
+      // ═══ S1: 0-6s ═══
+      tl.set("#s1", { visibility: "visible" }, 0);
+      tl.to("#s1", { opacity: 1, duration: 0.5 }, 0.2);
+      tl.from("#s1-line1", { y: 30, opacity: 0, duration: 0.7 }, 0.4);
+
+      // emoji 链依次出现
+      [["#es1", 1.3], ["#ea1", 1.7], ["#es2", 1.9], ["#ea2", 2.3], ["#es3", 2.5], ["#ea3", 2.9], ["#es4", 3.1]].forEach(([id, t]) => {
+        tl.fromTo(id, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: "back.out(1.4)" }, t);
+      });
+
+      // 数字 0→5
+      const numObj = { v: 0 };
+      tl.to(numObj, {
+        v: 5, duration: 0.8, ease: "power2.out",
+        onUpdate: () => { document.getElementById("s1-num").textContent = Math.round(numObj.v); }
+      }, 3.8);
+      tl.from("#s1-num-sub", { y: 15, opacity: 0, duration: 0.5 }, 4.6);
+
+      tl.call(() => { document.getElementById('subtitle').textContent = "从沙子到屏幕 · 5 大产业环节"; }, [], 0.5);
+      tl.to("#subtitle", { opacity: 1, duration: 0.4 }, 0.5);
+      tl.to("#subtitle", { opacity: 0, duration: 0.4 }, 5.4);
+
+      tl.to("#s1", { opacity: 0, duration: 0.5 }, 5.5);
+      tl.set("#s1", { visibility: "hidden" }, 6.0);
+
+      // ═══ chain-stage: 6-30s (持续) ═══
+      tl.set("#chain-stage", { visibility: "visible" }, 5.9);
+      tl.to("#chain-stage", { opacity: 1, duration: 0.5 }, 6.0);
+      tl.to("#chain-title", { opacity: 1, duration: 0.6, y: 0 }, 6.3);
+      tl.from("#chain-title", { y: -20, duration: 0.6 }, 6.3);
+
+      // 5 个节点逐个进入（背景层）
+      ["#n1","#n2","#n3","#n4","#n5"].forEach((id, i) => {
+        tl.fromTo(id, { scale: 0.7, opacity: 0 }, { scale: 1, opacity: 0.35, duration: 0.4, ease: "back.out(1.3)" }, 7.0 + i * 0.3);
+      });
+
+      // S2: 8-14s 上游高亮 + 玩家
+      tl.to("#n1", { opacity: 1, duration: 0.4, borderColor: "#00d9ff", backgroundColor: "rgba(0,80,160,0.4)", boxShadow: "0 0 40px rgba(0,217,255,0.4)", y: -10 }, 8.5);
+      tl.set("#pg-up", { visibility: "visible" }, 8.8);
+      tl.to("#pg-up", { opacity: 1, duration: 0.5 }, 9.0);
+      tl.from("#pg-up .pcard", { y: 30, opacity: 0, duration: 0.5, stagger: 0.2 }, 9.2);
+
+      tl.call(() => { document.getElementById('subtitle').textContent = "上游 · 外延片：三安、华灿"; }, [], 8.7);
+      tl.to("#subtitle", { opacity: 1, duration: 0.4 }, 8.7);
+      tl.to("#subtitle", { opacity: 0, duration: 0.4 }, 13.0);
+
+      // S3: 14-22s 中游高亮 + 玩家
+      tl.to("#pg-up", { opacity: 0, duration: 0.5 }, 13.5);
+      tl.set("#pg-up", { visibility: "hidden" }, 14.1);
+      tl.to("#n1", { opacity: 0.35, duration: 0.4, boxShadow: "none", borderColor: "rgba(0,217,255,0.2)", backgroundColor: "rgba(10,30,60,0.5)", y: 0 }, 13.8);
+      tl.to(["#n2","#n3"], { opacity: 1, duration: 0.4, borderColor: "#00d9ff", backgroundColor: "rgba(0,80,160,0.4)", boxShadow: "0 0 40px rgba(0,217,255,0.4)", y: -10 }, 14.2);
+      tl.set("#pg-mid", { visibility: "visible" }, 14.5);
+      tl.to("#pg-mid", { opacity: 1, duration: 0.5 }, 14.7);
+      tl.from("#pg-mid .pcard", { y: 30, opacity: 0, duration: 0.5, stagger: 0.2 }, 14.9);
+
+      tl.call(() => { document.getElementById('subtitle').textContent = "中游 · 巨量转移：晶合、雷曼"; }, [], 14.7);
+      tl.to("#subtitle", { opacity: 1, duration: 0.4 }, 14.7);
+      tl.to("#subtitle", { opacity: 0, duration: 0.4 }, 21.0);
+
+      // S4: 22-28s 下游
+      tl.to("#pg-mid", { opacity: 0, duration: 0.5 }, 21.4);
+      tl.set("#pg-mid", { visibility: "hidden" }, 22.0);
+      tl.to(["#n2","#n3"], { opacity: 0.35, duration: 0.4, boxShadow: "none", borderColor: "rgba(0,217,255,0.2)", backgroundColor: "rgba(10,30,60,0.5)", y: 0 }, 21.7);
+      tl.to(["#n4","#n5"], { opacity: 1, duration: 0.4, borderColor: "#00d9ff", backgroundColor: "rgba(0,80,160,0.4)", boxShadow: "0 0 40px rgba(0,217,255,0.4)", y: -10 }, 22.0);
+      tl.set("#pg-down", { visibility: "visible" }, 22.3);
+      tl.to("#pg-down", { opacity: 1, duration: 0.5 }, 22.5);
+      tl.from("#pg-down .pcard", { y: 30, opacity: 0, duration: 0.5, stagger: 0.2 }, 22.7);
+
+      tl.call(() => { document.getElementById('subtitle').textContent = "下游 · 应用：Apple、三星、TCL"; }, [], 22.5);
+      tl.to("#subtitle", { opacity: 1, duration: 0.4 }, 22.5);
+      tl.to("#subtitle", { opacity: 0, duration: 0.4 }, 27.5);
+
+      tl.to("#chain-stage", { opacity: 0, duration: 0.5 }, 27.7);
+      tl.set("#chain-stage", { visibility: "hidden" }, 28.3);
+
+      // ═══ S5: 28-36s 中国占比 + 卡脖子 ═══
+      tl.set("#s5", { visibility: "visible" }, 28.2);
+      tl.to("#s5", { opacity: 1, duration: 0.5 }, 28.4);
+
+      // 饼图弧动画：70% 对应 stroke-dashoffset = 502.65 * 0.3 = 150.8
+      tl.to("#pie-arc", { strokeDashoffset: 150.8, duration: 1.5, ease: "power2.out" }, 28.8);
+      const pieNum = { v: 0 };
+      tl.to(pieNum, {
+        v: 70, duration: 1.5, ease: "power2.out",
+        onUpdate: () => { document.getElementById("pie-num").textContent = Math.round(pieNum.v); }
+      }, 28.8);
+      tl.from("#pie-label", { y: 15, opacity: 0, duration: 0.6 }, 30.0);
+
+      tl.from("#s5-r-title", { x: 30, opacity: 0, duration: 0.7 }, 30.5);
+      tl.from(".s5-bullet", { x: 30, opacity: 0, duration: 0.5, stagger: 0.3 }, 31.2);
+
+      tl.call(() => { document.getElementById('subtitle').textContent = "中国占七成产能 · 高端 IP/设备仍卡脖子"; }, [], 30.0);
+      tl.to("#subtitle", { opacity: 1, duration: 0.4 }, 30.0);
+      tl.to("#subtitle", { opacity: 0, duration: 0.4 }, 39.0);
+
+      tl.to("#s5", { opacity: 0, duration: 0.8 }, 40.0);
+
+      window.__timelines["demo-industry"] = tl;
+    </script>
+  </body>
+</html>

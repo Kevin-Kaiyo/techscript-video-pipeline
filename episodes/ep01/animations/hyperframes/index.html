@@ -1,0 +1,716 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700;900&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #000;
+      }
+
+      #stage {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        font-family: "Noto Sans SC", sans-serif;
+        background: #000;
+      }
+
+      #bg {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse at 30% 50%, #001a3d 0%, #000510 60%, #000 100%);
+        z-index: 0;
+      }
+
+      #grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(0,150,255,0.07) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0,150,255,0.07) 1px, transparent 1px);
+        background-size: 80px 80px;
+        z-index: 1;
+      }
+
+      /* ── 扫描线（新增）── */
+      #scanline {
+        position: absolute;
+        left: 0;
+        top: -30px;
+        width: 1920px;
+        height: 4px;
+        background: linear-gradient(180deg,
+          transparent 0%,
+          rgba(0,200,255,0.4) 40%,
+          rgba(0,200,255,0.9) 50%,
+          rgba(0,200,255,0.4) 60%,
+          transparent 100%);
+        box-shadow: 0 0 30px rgba(0,200,255,0.6);
+        z-index: 2;
+        opacity: 0;
+      }
+
+      /* ── 像素噪点矩阵（新增，背景层）── */
+      #noise-matrix {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+      }
+      .noise-cell {
+        position: absolute;
+        background: rgba(0,180,255,0.5);
+        border-radius: 1px;
+      }
+
+      .pixel-dot {
+        position: absolute;
+        border-radius: 50%;
+        z-index: 2;
+      }
+
+      /* ── 场景1：手机 + 提问 ── */
+      #scene1 {
+        position: absolute;
+        inset: 0;
+        z-index: 8;
+      }
+      #phone {
+        position: absolute;
+        left: 280px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 420px;
+        height: 760px;
+        border-radius: 50px;
+        background: linear-gradient(145deg, #1a1a1a, #0a0a0a);
+        box-shadow: 0 30px 80px rgba(0,0,0,0.8), 0 0 60px rgba(0,150,255,0.2);
+        padding: 20px;
+      }
+      #phone-screen {
+        width: 100%; height: 100%;
+        border-radius: 35px;
+        background: #000;
+        overflow: hidden;
+        position: relative;
+      }
+      #phone-pixels {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        grid-template-rows: repeat(12, 1fr);
+        gap: 2px;
+        padding: 16px;
+      }
+      .px-cell {
+        background: linear-gradient(135deg, rgba(0,200,255,0.6), rgba(100,150,255,0.3));
+        border-radius: 4px;
+        opacity: 0;
+      }
+      #question {
+        position: absolute;
+        right: 240px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 82px;
+        font-weight: 700;
+        color: #fff;
+        letter-spacing: 2px;
+        line-height: 1.3;
+      }
+      #question .line2 .highlight {
+        color: #00ccff;
+        text-shadow: 0 0 30px rgba(0,200,255,0.6);
+      }
+
+      /* ── 场景2：对比卡片 ── */
+      #scene2 {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 60px;
+        z-index: 5;
+      }
+      .tech-card {
+        width: 420px; height: 500px;
+        border-radius: 24px;
+        border: 2px solid rgba(255,255,255,0.15);
+        background: rgba(255,255,255,0.04);
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center; gap: 24px;
+      }
+      .tech-card.lcd  { border-color: rgba(255,180,0,0.4); }
+      .tech-card.oled { border-color: rgba(150,100,255,0.4); }
+      .tech-card.mled { border-color: rgba(0,200,255,0.6); box-shadow: 0 0 60px rgba(0,200,255,0.2); }
+      .card-icon {
+        width: 100px; height: 100px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center; font-size: 52px;
+      }
+      .lcd  .card-icon { background: rgba(255,180,0,0.15); }
+      .oled .card-icon { background: rgba(150,100,255,0.15); }
+      .mled .card-icon { background: rgba(0,200,255,0.15); }
+      .card-title { font-size: 42px; font-weight: 700; color: #fff; letter-spacing: 2px; }
+      .card-desc { font-size: 26px; color: rgba(255,255,255,0.6); text-align: center; line-height: 1.5; padding: 0 24px; }
+      .card-badge { font-size: 22px; padding: 8px 24px; border-radius: 20px; font-weight: 600; letter-spacing: 1px; }
+      .lcd  .card-badge { background: rgba(255,180,0,0.2); color: #ffd060; }
+      .oled .card-badge { background: rgba(150,100,255,0.2); color: #c090ff; }
+      .mled .card-badge { background: rgba(0,200,255,0.2); color: #00ccff; }
+
+      /* ── 场景3a：像素矩阵原理（新增）── */
+      #scene3a {
+        position: absolute; inset: 0;
+        display: flex; align-items: center; justify-content: center;
+        gap: 100px; z-index: 5;
+      }
+      #pixel-mat {
+        width: 700px; height: 700px;
+        display: grid;
+        grid-template-columns: repeat(20, 1fr);
+        grid-template-rows: repeat(20, 1fr);
+        gap: 2px;
+      }
+      .matrix-pixel {
+        background: rgba(0,200,255,0.1);
+        border-radius: 2px;
+        opacity: 0;
+      }
+      #scene3a-text {
+        max-width: 700px;
+        color: #fff;
+      }
+      #scene3a-text .title {
+        font-size: 64px; font-weight: 900; color: #00ccff;
+        letter-spacing: 4px; margin-bottom: 30px;
+      }
+      #scene3a-text .desc {
+        font-size: 36px; font-weight: 300; line-height: 1.6;
+        color: rgba(255,255,255,0.85);
+      }
+      #scene3a-text .desc strong { color: #00ccff; font-weight: 700; }
+
+      /* ── 场景3b：优势 chips（新增）── */
+      #scene3b {
+        position: absolute; inset: 0;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        gap: 40px; z-index: 5;
+      }
+      #scene3b-title {
+        font-size: 72px; font-weight: 900; letter-spacing: 6px;
+        color: transparent;
+        background: linear-gradient(135deg, #00ccff 0%, #fff 50%, #0080ff 100%);
+        -webkit-background-clip: text; background-clip: text;
+      }
+      #adv-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 40px 60px;
+        margin-top: 30px;
+      }
+      .adv-chip {
+        display: flex; align-items: center; gap: 24px;
+        padding: 28px 50px;
+        border-radius: 20px;
+        background: rgba(0,150,255,0.08);
+        border: 1px solid rgba(0,200,255,0.3);
+        min-width: 500px;
+      }
+      .adv-num {
+        font-size: 72px; font-weight: 900;
+        color: #00ccff;
+        text-shadow: 0 0 20px rgba(0,200,255,0.4);
+        min-width: 200px; text-align: right;
+      }
+      .adv-num .unit { font-size: 32px; color: rgba(0,200,255,0.7); }
+      .adv-desc {
+        font-size: 30px; color: #fff; font-weight: 500;
+      }
+
+      /* ── 场景3c：大标题 + 应用 ── */
+      #scene3c {
+        position: absolute; inset: 0;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center; z-index: 5;
+      }
+      #glow-ring {
+        position: absolute;
+        width: 900px; height: 900px;
+        border-radius: 50%;
+        border: 2px solid rgba(0,180,255,0.2);
+        box-shadow: 0 0 100px rgba(0,150,255,0.15), inset 0 0 100px rgba(0,150,255,0.08);
+      }
+      #big-title {
+        position: relative;
+        font-size: 180px; font-weight: 900; letter-spacing: 8px;
+        color: transparent;
+        background: linear-gradient(135deg, #00ccff 0%, #ffffff 50%, #0080ff 100%);
+        -webkit-background-clip: text; background-clip: text;
+        line-height: 1.1; z-index: 2;
+      }
+      #big-subtitle {
+        position: relative;
+        font-size: 56px; font-weight: 300;
+        color: rgba(255,255,255,0.85);
+        letter-spacing: 16px;
+        margin-top: 30px; z-index: 2;
+      }
+      #app-row {
+        position: absolute;
+        bottom: 200px;
+        display: flex; gap: 80px;
+        z-index: 2;
+      }
+      .app-item {
+        display: flex; flex-direction: column; align-items: center; gap: 12px;
+        opacity: 0;
+      }
+      .app-icon {
+        font-size: 64px;
+        filter: drop-shadow(0 0 16px rgba(0,200,255,0.5));
+      }
+      .app-label {
+        font-size: 22px; color: rgba(255,255,255,0.8); letter-spacing: 2px;
+      }
+
+      /* ── 字幕条 ── */
+      #subtitle {
+        position: absolute;
+        bottom: 80px;
+        left: 50%;
+        font-size: 44px;
+        color: #fff;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.95), 0 0 4px #000;
+        letter-spacing: 3px;
+        white-space: nowrap;
+        z-index: 20;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="stage"
+      data-composition-id="microled-demo"
+      data-start="0"
+      data-duration="58"
+      data-width="1920"
+      data-height="1080"
+    >
+      <div id="bg"></div>
+      <div id="grid"></div>
+      <div id="noise-matrix"></div>
+      <div id="scanline"></div>
+      <div id="dots"></div>
+
+      <!-- Scene 1 (0-5s) -->
+      <div id="scene1" style="visibility:hidden;opacity:0;">
+        <div id="phone">
+          <div id="phone-screen">
+            <div id="phone-pixels"></div>
+          </div>
+        </div>
+        <div id="question">
+          <div class="line1">你有没有想过</div>
+          <div class="line2">手机屏幕里的<span class="highlight">「光」</span><br>是怎么来的？</div>
+        </div>
+      </div>
+
+      <!-- Scene 2 (5-20s) -->
+      <div id="scene2" style="visibility:hidden;opacity:0;">
+        <div class="tech-card lcd" id="card-lcd">
+          <div class="card-icon">💡</div>
+          <div class="card-title">LCD</div>
+          <div class="card-desc">背光灯照亮液晶<br>像素无法独立发光</div>
+          <div class="card-badge">⚡ 高耗电</div>
+        </div>
+        <div class="tech-card oled" id="card-oled">
+          <div class="card-icon">🔵</div>
+          <div class="card-title">OLED</div>
+          <div class="card-desc">每个像素自己发光<br>但有烧屏风险</div>
+          <div class="card-badge">⚠ 烧屏</div>
+        </div>
+        <div class="tech-card mled" id="card-mled">
+          <div class="card-icon">✨</div>
+          <div class="card-title">Micro LED</div>
+          <div class="card-desc">微型LED阵列<br>每像素独立·零烧屏</div>
+          <div class="card-badge">🚀 下一代</div>
+        </div>
+      </div>
+
+      <!-- Scene 3a (20-32s) -->
+      <div id="scene3a" style="visibility:hidden;opacity:0;">
+        <div id="pixel-mat"></div>
+        <div id="scene3a-text">
+          <div class="title">原理</div>
+          <div class="desc">
+            把<strong>几百万颗</strong>比头发丝<br>
+            还细十倍的微型 LED<br>
+            直接<strong>封装在屏幕上</strong>，<br>
+            每一像素，独立发光。
+          </div>
+        </div>
+      </div>
+
+      <!-- Scene 3b (32-45s) -->
+      <div id="scene3b" style="visibility:hidden;opacity:0;">
+        <div id="scene3b-title">四大优势</div>
+        <div id="adv-grid">
+          <div class="adv-chip" id="adv1">
+            <div class="adv-num">10<span class="unit">×</span></div>
+            <div class="adv-desc">亮度，阳光下清晰可见</div>
+          </div>
+          <div class="adv-chip" id="adv2">
+            <div class="adv-num">100,000<span class="unit">h</span></div>
+            <div class="adv-desc">寿命，几乎不老化</div>
+          </div>
+          <div class="adv-chip" id="adv3">
+            <div class="adv-num">0<span class="unit"></span></div>
+            <div class="adv-desc">烧屏 · 残影</div>
+          </div>
+          <div class="adv-chip" id="adv4">
+            <div class="adv-num">μs<span class="unit"></span></div>
+            <div class="adv-desc">级响应，快到飞起</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scene 3c (45-58s) -->
+      <div id="scene3c" style="visibility:hidden;opacity:0;">
+        <div id="glow-ring"></div>
+        <div id="big-title">Micro LED</div>
+        <div id="big-subtitle">小小像素，大大未来</div>
+        <div id="app-row">
+          <div class="app-item" id="app1"><div class="app-icon">⌚</div><div class="app-label">智能手表</div></div>
+          <div class="app-item" id="app2"><div class="app-icon">🥽</div><div class="app-label">AR 眼镜</div></div>
+          <div class="app-item" id="app3"><div class="app-icon">🚗</div><div class="app-label">汽车大灯</div></div>
+          <div class="app-item" id="app4"><div class="app-icon">📺</div><div class="app-label">巨幕拼接</div></div>
+        </div>
+      </div>
+
+      <div id="subtitle"></div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+
+      function mulberry32(seed) {
+        return function() {
+          seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+          var t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+          t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+          return ((t ^ t >>> 14) >>> 0) / 4294967296;
+        };
+      }
+      const rng = mulberry32(42);
+
+      // 像素粒子（场景1背景）
+      const dotsContainer = document.getElementById("dots");
+      for (let i = 0; i < 50; i++) {
+        const d = document.createElement("div");
+        d.className = "pixel-dot";
+        const size = rng() * 6 + 3;
+        d.style.width = size + "px";
+        d.style.height = size + "px";
+        d.style.left = rng() * 1920 + "px";
+        d.style.top = rng() * 1080 + "px";
+        const isBlue = rng() > 0.5;
+        const hue = isBlue ? "0,170,255" : "0,220,180";
+        d.style.background = `rgb(${hue})`;
+        d.style.boxShadow = `0 0 ${size*2}px rgba(${hue},0.9)`;
+        d.style.opacity = "0";
+        dotsContainer.appendChild(d);
+      }
+
+      // 噪点矩阵（背景层，浅蓝微闪）
+      const noiseMat = document.getElementById("noise-matrix");
+      for (let i = 0; i < 80; i++) {
+        const c = document.createElement("div");
+        c.className = "noise-cell";
+        const size = rng() * 3 + 1.5;
+        c.style.width = size + "px";
+        c.style.height = size + "px";
+        c.style.left = rng() * 1920 + "px";
+        c.style.top = rng() * 1080 + "px";
+        c.style.opacity = (rng() * 0.35 + 0.15).toFixed(2);
+        noiseMat.appendChild(c);
+      }
+
+      // 手机像素 (8x12=96)
+      const phonePixels = document.getElementById("phone-pixels");
+      for (let i = 0; i < 96; i++) {
+        const cell = document.createElement("div");
+        cell.className = "px-cell";
+        phonePixels.appendChild(cell);
+      }
+
+      // 场景3a 像素矩阵 (20x20=400)
+      const pmat = document.getElementById("pixel-mat");
+      for (let i = 0; i < 400; i++) {
+        const cell = document.createElement("div");
+        cell.className = "matrix-pixel";
+        pmat.appendChild(cell);
+      }
+
+      // ════════════════════════════════════════════════
+      // TIMELINE — 总时长 58s，按配音段精确对齐
+      // s01 (3.55s):  0.3–3.85s
+      // s02 (10.84s): 5.5–16.34s
+      // s03 (3.00s):  17.0–20.0s
+      // s04 (11.73s): 20.5–32.23s
+      // s05 (13.17s): 32.5–45.67s
+      // s06 (15.15s): 46.0–61.15s  → 截到 57.5s
+      // ════════════════════════════════════════════════
+
+      // ── 初始状态（在 timeline 之前用 gsap.set 立即生效）──
+      gsap.set("#grid",       { opacity: 0 });
+      gsap.set("#noise-matrix",{ opacity: 0 });
+      gsap.set("#scanline",   { opacity: 0, top: -30 });
+      gsap.set("#scene1",     { opacity: 1, visibility: "visible" });
+      gsap.set("#phone",      { x: -80, opacity: 0 });
+      gsap.set("#question",   { x: 60, opacity: 0 });
+      gsap.set("#subtitle",   { x: "-50%", opacity: 0 });
+      gsap.set("#scene2",     { opacity: 0, visibility: "hidden" });
+      gsap.set("#card-lcd",   { y: 60, opacity: 0 });
+      gsap.set("#card-oled",  { y: 60, opacity: 0 });
+      gsap.set("#card-mled",  { y: 60, opacity: 0, scale: 1 });
+      gsap.set("#scene3a",    { opacity: 0, visibility: "hidden" });
+      gsap.set("#scene3a-text", { x: 50, opacity: 0 });
+      gsap.set("#scene3b",    { opacity: 0, visibility: "hidden" });
+      gsap.set("#scene3b-title", { y: -30, opacity: 0 });
+      gsap.set(".adv-chip",   { y: 40, opacity: 0 });
+      gsap.set("#scene3c",    { opacity: 0, visibility: "hidden" });
+      gsap.set("#glow-ring",  { scale: 0, opacity: 0 });
+      gsap.set("#big-title",  { scale: 0.7, opacity: 0 });
+      gsap.set("#big-subtitle", { y: 20, opacity: 0 });
+      gsap.set(".app-item",   { y: 30, opacity: 0 });
+
+      const tl = gsap.timeline({ paused: true });
+
+      // ── timeline 内同样的初始状态（保证 seek 回起点正确）──
+      tl.set("#grid",       { opacity: 0 }, 0);
+      tl.set("#noise-matrix",{ opacity: 0 }, 0);
+      tl.set("#scanline",   { opacity: 0, top: -30 }, 0);
+      tl.set("#scene1",     { opacity: 1, visibility: "visible" }, 0);
+      tl.set("#phone",      { x: -80, opacity: 0 }, 0);
+      tl.set("#question",   { x: 60, opacity: 0 }, 0);
+      tl.set("#subtitle",   { x: "-50%", opacity: 0 }, 0);
+      tl.set("#scene2",     { opacity: 0, visibility: "hidden" }, 0);
+      tl.set("#card-lcd",   { y: 60, opacity: 0 }, 0);
+      tl.set("#card-oled",  { y: 60, opacity: 0 }, 0);
+      tl.set("#card-mled",  { y: 60, opacity: 0, scale: 1 }, 0);
+      tl.set("#scene3a",    { opacity: 0, visibility: "hidden" }, 0);
+      tl.set("#scene3a-text", { x: 50, opacity: 0 }, 0);
+      tl.set("#scene3b",    { opacity: 0, visibility: "hidden" }, 0);
+      tl.set("#scene3b-title", { y: -30, opacity: 0 }, 0);
+      tl.set(".adv-chip",   { y: 40, opacity: 0 }, 0);
+      tl.set("#scene3c",    { opacity: 0, visibility: "hidden" }, 0);
+      tl.set("#glow-ring",  { scale: 0, opacity: 0 }, 0);
+      tl.set("#big-title",  { scale: 0.7, opacity: 0 }, 0);
+      tl.set("#big-subtitle", { y: 20, opacity: 0 }, 0);
+      tl.set(".app-item",   { y: 30, opacity: 0 }, 0);
+
+      // ════════════════════════════════════════════════
+      // 场景 1: 0s – 5s  开场问题（s01 配音 0.3–3.85s）
+      // ════════════════════════════════════════════════
+
+      // 网格 + 噪点淡入
+      tl.to("#grid",         { opacity: 1, duration: 1.2 }, 0);
+      tl.to("#noise-matrix", { opacity: 1, duration: 1.2 }, 0);
+
+      // 扫描线：0.3s 开始横扫，2.5s 完成
+      tl.to("#scanline", { opacity: 0.8, duration: 0.3 }, 0.3);
+      tl.to("#scanline", { top: 1080, duration: 2.4, ease: "power1.inOut" }, 0.3);
+      tl.to("#scanline", { opacity: 0, duration: 0.3 }, 2.7);
+
+      // 粒子有限闪烁
+      const dots = document.querySelectorAll(".pixel-dot");
+      dots.forEach((d, i) => {
+        const delay = (i % 20) * 0.08;
+        const targetOpacity = (i % 5 + 1) * 0.12;
+        tl.to(d, {
+          opacity: targetOpacity,
+          duration: 0.4, repeat: 9, yoyo: true, ease: "power1.inOut", delay
+        }, 0);
+      });
+
+      // 噪点矩阵微闪
+      const noiseCells = document.querySelectorAll(".noise-cell");
+      noiseCells.forEach((c, i) => {
+        const baseOp = parseFloat(c.style.opacity);
+        tl.to(c, {
+          opacity: baseOp * 1.8, duration: 0.5,
+          repeat: 9, yoyo: true, ease: "power1.inOut", delay: (i % 10) * 0.05
+        }, 0);
+      });
+
+      // 手机与提问
+      tl.to("#phone", { x: 0, opacity: 1, duration: 0.8, ease: "power3.out" }, 0.4);
+
+      document.querySelectorAll(".px-cell").forEach((cell, i) => {
+        tl.to(cell, { opacity: 1, duration: 0.05 }, 0.6 + i * 0.012);
+      });
+
+      tl.to("#question", { x: 0, opacity: 1, duration: 0.9, ease: "power3.out" }, 0.8);
+
+      // 字幕（s01）
+      tl.call(() => { document.getElementById("subtitle").textContent = "手机屏幕里的「光」从哪来？"; }, [], 0.5);
+      tl.to("#subtitle", { opacity: 1, duration: 0.4 }, 0.5);
+      tl.to("#subtitle", { opacity: 0, duration: 0.4 }, 4.0);
+
+      // 场景1 退场
+      tl.to("#scene1", { opacity: 0, duration: 0.7 }, 4.4);
+      tl.set("#scene1", { visibility: "hidden" }, 5.1);
+
+      // ════════════════════════════════════════════════
+      // 场景 2: 5s – 17s  三种技术对比（s02 配音 5.5–16.34s）
+      // ════════════════════════════════════════════════
+      tl.set("#scene2", { visibility: "visible" }, 4.8);
+      tl.to("#scene2",  { opacity: 1, duration: 0.5 }, 5.0);
+
+      // 卡片依次进入，对齐 s02 时间轴
+      tl.to("#card-lcd",  { y: 0, opacity: 1, duration: 0.6, ease: "back.out(1.4)" }, 5.5);
+      tl.to("#card-oled", { y: 0, opacity: 1, duration: 0.6, ease: "back.out(1.4)" }, 9.0);
+      tl.to("#card-mled", { y: 0, opacity: 1, duration: 0.6, ease: "back.out(1.4)" }, 12.5);
+
+      // 字幕分段
+      tl.call(() => { document.getElementById("subtitle").textContent = "LCD：靠背光，不能自发光"; }, [], 5.7);
+      tl.to("#subtitle", { opacity: 1, duration: 0.3 }, 5.7);
+      tl.to("#subtitle", { opacity: 0, duration: 0.3 }, 8.6);
+
+      tl.call(() => { document.getElementById("subtitle").textContent = "OLED：自发光，但有烧屏风险"; }, [], 9.1);
+      tl.to("#subtitle", { opacity: 1, duration: 0.3 }, 9.1);
+      tl.to("#subtitle", { opacity: 0, duration: 0.3 }, 12.2);
+
+      tl.call(() => { document.getElementById("subtitle").textContent = "Micro LED：下一代显示技术"; }, [], 12.6);
+      tl.to("#subtitle", { opacity: 1, duration: 0.3 }, 12.6);
+
+      // MicroLED 高亮脉冲（2次）
+      tl.to("#card-mled", { scale: 1.05, boxShadow: "0 0 80px rgba(0,200,255,0.5)", duration: 0.5 }, 13.5);
+      tl.to("#card-mled", { scale: 1.0,  boxShadow: "0 0 60px rgba(0,200,255,0.2)", duration: 0.5 }, 14.0);
+      tl.to("#card-mled", { scale: 1.04, boxShadow: "0 0 80px rgba(0,200,255,0.5)", duration: 0.5 }, 14.5);
+      tl.to("#card-mled", { scale: 1.0,  boxShadow: "0 0 60px rgba(0,200,255,0.2)", duration: 0.5 }, 15.0);
+
+      tl.to("#subtitle", { opacity: 0, duration: 0.4 }, 16.2);
+
+      // ════════════════════════════════════════════════
+      // 过渡 + s03 "下一个时代的答案" (17–20s)
+      // 卡片放大 → 场景3a 过渡
+      // ════════════════════════════════════════════════
+      tl.to("#card-lcd",  { opacity: 0, duration: 0.6 }, 16.6);
+      tl.to("#card-oled", { opacity: 0, duration: 0.6 }, 16.6);
+      tl.to("#card-mled", { scale: 1.3, duration: 1.2, ease: "power2.inOut" }, 16.8);
+
+      tl.call(() => { document.getElementById("subtitle").textContent = "Micro LED — 下一个时代的答案"; }, [], 17.0);
+      tl.to("#subtitle", { opacity: 1, duration: 0.4 }, 17.0);
+      tl.to("#subtitle", { opacity: 0, duration: 0.4 }, 19.8);
+
+      tl.to("#scene2",  { opacity: 0, duration: 0.6 }, 19.4);
+      tl.set("#scene2", { visibility: "hidden" }, 20.0);
+
+      // ════════════════════════════════════════════════
+      // 场景 3a: 20s – 32s  原理（s04 配音 20.5–32.23s）
+      // ════════════════════════════════════════════════
+      tl.set("#scene3a", { visibility: "visible" }, 19.8);
+      tl.to("#scene3a",  { opacity: 1, duration: 0.5 }, 20.0);
+      tl.to("#scene3a-text", { x: 0, opacity: 1, duration: 0.8, ease: "power3.out" }, 20.5);
+
+      // 矩阵像素流式点亮（400格，10s内点完）
+      const mPx = document.querySelectorAll(".matrix-pixel");
+      mPx.forEach((cell, i) => {
+        const colorIdx = i % 3;
+        const color = colorIdx === 0 ? "rgba(255,80,80,0.85)"
+                    : colorIdx === 1 ? "rgba(80,255,150,0.85)"
+                    : "rgba(80,180,255,0.85)";
+        tl.to(cell, {
+          opacity: 1, background: color, duration: 0.04
+        }, 20.8 + (i / 400) * 9.5);
+      });
+
+      tl.call(() => { document.getElementById("subtitle").textContent = "每像素，都是一盏独立的灯"; }, [], 24.0);
+      tl.to("#subtitle", { opacity: 1, duration: 0.4 }, 24.0);
+      tl.to("#subtitle", { opacity: 0, duration: 0.4 }, 31.7);
+
+      tl.to("#scene3a", { opacity: 0, duration: 0.6 }, 31.6);
+      tl.set("#scene3a", { visibility: "hidden" }, 32.3);
+
+      // ════════════════════════════════════════════════
+      // 场景 3b: 32s – 45s  优势（s05 配音 32.5–45.67s）
+      // ════════════════════════════════════════════════
+      tl.set("#scene3b", { visibility: "visible" }, 32.1);
+      tl.to("#scene3b",  { opacity: 1, duration: 0.5 }, 32.3);
+      tl.to("#scene3b-title", { y: 0, opacity: 1, duration: 0.7, ease: "power3.out" }, 32.6);
+
+      // 4 个 chip 依次进入
+      tl.to("#adv1", { y: 0, opacity: 1, duration: 0.6, ease: "back.out(1.4)" }, 33.5);
+      tl.to("#adv2", { y: 0, opacity: 1, duration: 0.6, ease: "back.out(1.4)" }, 36.0);
+      tl.to("#adv3", { y: 0, opacity: 1, duration: 0.6, ease: "back.out(1.4)" }, 39.0);
+      tl.to("#adv4", { y: 0, opacity: 1, duration: 0.6, ease: "back.out(1.4)" }, 41.5);
+
+      tl.call(() => { document.getElementById("subtitle").textContent = "亮度·寿命·零烧屏·微秒响应"; }, [], 33.5);
+      tl.to("#subtitle", { opacity: 1, duration: 0.4 }, 33.5);
+      tl.to("#subtitle", { opacity: 0, duration: 0.4 }, 44.8);
+
+      tl.to("#scene3b", { opacity: 0, duration: 0.6 }, 44.6);
+      tl.set("#scene3b", { visibility: "hidden" }, 45.3);
+
+      // ════════════════════════════════════════════════
+      // 场景 3c: 45s – 57.5s  大标题 + 应用（s06 配音 46.0–57.5s）
+      // ════════════════════════════════════════════════
+      tl.set("#scene3c", { visibility: "visible" }, 45.0);
+      tl.to("#scene3c",  { opacity: 1, duration: 0.5 }, 45.2);
+
+      tl.fromTo("#glow-ring",
+        { scale: 0, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 1.2, ease: "power2.out" },
+        45.5
+      );
+      tl.to("#glow-ring", {
+        scale: 1.08, opacity: 0.6,
+        duration: 1.5, repeat: 4, yoyo: true, ease: "power1.inOut"
+      }, 47.0);
+
+      tl.fromTo("#big-title",
+        { scale: 0.7, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 1.2, ease: "elastic.out(1, 0.6)" },
+        45.8
+      );
+      tl.fromTo("#big-subtitle",
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" },
+        47.0
+      );
+
+      // 应用图标依次浮入
+      tl.to("#app1", { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" }, 49.0);
+      tl.to("#app2", { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" }, 49.8);
+      tl.to("#app3", { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" }, 50.6);
+      tl.to("#app4", { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" }, 51.4);
+
+      tl.call(() => { document.getElementById("subtitle").textContent = "从手表、AR、汽车，到巨幕——"; }, [], 49.5);
+      tl.to("#subtitle", { opacity: 1, duration: 0.4 }, 49.5);
+      tl.to("#subtitle", { opacity: 0, duration: 0.4 }, 53.5);
+
+      tl.call(() => { document.getElementById("subtitle").textContent = "小小像素，大大未来"; }, [], 54.0);
+      tl.to("#subtitle", { opacity: 1, duration: 0.4 }, 54.0);
+
+      // 收尾
+      tl.to("#subtitle", { opacity: 0, duration: 0.6 }, 56.8);
+      tl.to("#scene3c", { opacity: 0, duration: 0.8 }, 56.8);
+
+      window.__timelines["microled-demo"] = tl;
+    </script>
+  </body>
+</html>
