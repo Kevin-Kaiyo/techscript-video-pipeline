@@ -10,6 +10,7 @@
 
 # ===== Render artifacts =====
 episodes/*/animations/hyperframes/renders/
+media/
 preview/
 
 # ===== TTS experiments =====
@@ -18,6 +19,7 @@ tts-bake-off/
 # ===== Python envs =====
 .venv/
 .venv-tts/
+.venv-manim/
 __pycache__/
 *.pyc
 *.pyo

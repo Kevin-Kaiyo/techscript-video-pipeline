@@ -1,0 +1,6 @@
+# Manim renderer dependencies
+# Install:
+#   python3.11 -m venv .venv-manim
+#   .venv-manim/bin/pip install -r requirements-manim.txt
+
+manim>=0.19,<0.20

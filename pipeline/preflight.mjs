@@ -48,19 +48,28 @@ try {
 const epDir = join(projectRoot, 'episodes', ep);
 const hfDir = join(epDir, 'animations', 'hyperframes');
 const indexPath = join(hfDir, 'index.html');
+const manimScenePath = join(projectRoot, 'pipeline', 'manim', 'microled_mass_transfer.py');
+const manimPython = join(projectRoot, '.venv-manim', 'bin', 'python');
 const schedulePath = join(epDir, 'audio_schedule.json');
 const audioDir = join(epDir, 'audio', 'voiceover');
 const videoConfigPath = join(projectRoot, 'shared', 'brand', 'video.json');
 
 if (!existsSync(epDir)) fail('Episode directory not found: ' + epDir);
-if (!existsSync(indexPath)) fail('HyperFrames entry not found: ' + indexPath);
+const hasHyperFrames = existsSync(indexPath);
+const isManimEpisode = ep === 'demo-manim' || existsSync(join(epDir, 'animations', 'manim'));
+
+if (!hasHyperFrames && !isManimEpisode) fail('HyperFrames entry not found: ' + indexPath);
+if (isManimEpisode) {
+  if (!existsSync(manimScenePath)) fail('Manim scene not found: ' + manimScenePath);
+  if (!existsSync(manimPython)) fail('Manim Python not found. Run: python3.11 -m venv .venv-manim && .venv-manim/bin/pip install -r requirements-manim.txt');
+}
 
 if (existsSync(videoConfigPath)) {
   const config = JSON.parse(readFileSync(videoConfigPath, 'utf8'));
   if (!config.fps) warn('shared/brand/video.json has no fps; build will fall back to FPS env or 24.');
 }
 
-if (existsSync(indexPath)) {
+if (hasHyperFrames) {
   const html = readFileSync(indexPath, 'utf8');
   if (!html.match(/data-composition-id="[^"]+"/)) fail('index.html is missing data-composition-id.');
   if (!html.match(/data-duration="[^"]+"/)) fail('index.html is missing data-duration.');

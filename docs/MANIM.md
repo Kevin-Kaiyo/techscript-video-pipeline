@@ -1,18 +1,39 @@
-# Manim Status
+# Manim Renderer
 
-Manim support is planned for Phase C.
+Manim is now the reference renderer for technical-principle scenes.
 
-Current repository state:
+## Current Demo
 
-- Helper scripts exist under `pipeline/manim/`.
-- `episodes/demo-manim/` is a placeholder.
-- The current technical demo still uses HyperFrames.
+`episodes/demo-manim/` renders a Micro LED mass-transfer explainer:
 
-Do not treat Manim as a production-ready renderer in this project until a real `demo-manim` episode can be rendered from a fresh clone with documented commands.
+- LED wafer pixel array
+- elastomer transfer stamp
+- alignment and release onto a TFT backplane
+- defect/yield callouts
 
-Phase C target:
+## Setup
 
-1. Build one Micro LED technical-principle animation with Manim.
-2. Add setup instructions for Manim dependencies.
-3. Add a render command that outputs a local MP4.
-4. Link the working demo from README and WORKFLOW.
+```bash
+python3.11 -m venv .venv-manim
+.venv-manim/bin/pip install -r requirements-manim.txt
+```
+
+## Build
+
+```bash
+PYTHON=.venv-tts/bin/python make tts EP=demo-manim
+make schedule EP=demo-manim
+make manim-build EP=demo-manim
+```
+
+Output:
+
+```text
+episodes/demo-manim/output/demo-manim_full.mp4
+```
+
+## Notes
+
+- Keep Manim in `.venv-manim`; do not install it into `.venv-tts`.
+- Generated Manim media under `media/` is ignored by git.
+- The Pythagoras files under `pipeline/manim/` are style references, not the primary product demo.

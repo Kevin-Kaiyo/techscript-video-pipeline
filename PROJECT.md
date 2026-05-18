@@ -46,7 +46,7 @@ episodes/<ep>/script.md
 | --- | --- | --- |
 | Industry maps / value chains | HyperFrames | Working demos |
 | Data and chart explainers | HyperFrames | Working demos |
-| Technical principles / algorithms | Manim | Planned, not productized |
+| Technical principles / algorithms | Manim | Reference demo available |
 
 ## Current Demos
 
@@ -55,7 +55,7 @@ episodes/<ep>/script.md
 | `demo-industry` | Micro LED industry chain | HyperFrames | Reference demo |
 | `demo-data` | Display market growth | HyperFrames | Reference demo |
 | `demo-tech` | Micro LED mass transfer concept | HyperFrames | Temporary technical demo |
-| `demo-manim` | Manim technical animation | Manim | Placeholder |
+| `demo-manim` | Micro LED mass transfer | Manim | Reference demo |
 | `ep01` | Original Micro LED experiment | Mixed legacy/current | Kept as historical material |
 
 ## Stabilization Plan
@@ -76,9 +76,9 @@ episodes/<ep>/script.md
 
 ### Phase C - Productize Manim
 
-- Build a real `demo-manim` episode.
-- Document the Manim setup and rendering path.
-- Use it for technical/algorithmic scenes rather than treating it as a future promise.
+- Build a real `demo-manim` episode. Done.
+- Document the Manim setup and rendering path. Done.
+- Use it for technical/algorithmic scenes rather than treating it as a future promise. Done for the first reference demo.
 
 ## Verification Baseline
 

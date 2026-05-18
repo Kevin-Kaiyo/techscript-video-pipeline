@@ -1,0 +1,23 @@
+{
+  "tracks": [
+    {
+      "id": "s01",
+      "file": "demo-manim_s01.mp3",
+      "start_ms": 0,
+      "duration_s": 7.272
+    },
+    {
+      "id": "s02",
+      "file": "demo-manim_s02.mp3",
+      "start_ms": 7572,
+      "duration_s": 7.056
+    },
+    {
+      "id": "s03",
+      "file": "demo-manim_s03.mp3",
+      "start_ms": 14928,
+      "duration_s": 10.176
+    }
+  ],
+  "total_duration": 25.104
+}

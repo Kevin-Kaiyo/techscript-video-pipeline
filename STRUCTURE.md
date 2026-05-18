@@ -16,17 +16,18 @@ techscript-video-pipeline/
 │   ├── demo-industry/               # HyperFrames reference demo
 │   ├── demo-data/                   # HyperFrames data/chart demo
 │   ├── demo-tech/                   # Temporary technical HyperFrames demo
-│   ├── demo-manim/                  # Manim placeholder for Phase C
+│   ├── demo-manim/                  # Manim Micro LED mass-transfer demo
 │   └── ep01/                        # Original Micro LED episode material
 ├── pipeline/
 │   ├── tts/                         # TTS provider abstraction
-│   ├── manim/                       # Manim scripts and helpers
+│   ├── manim/                       # Manim scenes and helpers
 │   ├── tts_cli.py                   # Unified TTS CLI
 │   ├── auto_schedule.mjs            # Voiceover duration -> schedule
 │   ├── preflight.mjs                # Build preflight checks
 │   ├── render_cdp_resumable.mjs     # Chrome CDP frame renderer
 │   ├── compose_audio.mjs            # FFmpeg audio mix
-│   └── build_episode.sh             # HyperFrames end-to-end build
+│   ├── build_episode.sh             # HyperFrames end-to-end build
+│   └── build_manim_episode.sh       # Manim render + audio mix
 ├── shared/
 │   └── brand/
 │       ├── brand.json               # Visual identity tokens
@@ -65,5 +66,5 @@ episodes/<ep>/
 ## Stable vs Historical
 
 - Stable path: `pipeline/tts_cli.py`, `pipeline/auto_schedule.mjs`, `pipeline/build_episode.sh`, and HyperFrames episode directories.
-- Experimental path: `pipeline/manim/` until Phase C ships a real demo.
+- Manim path: `pipeline/manim/` plus `pipeline/build_manim_episode.sh`.
 - Historical path: `archive/legacy_ep01/`. Keep it for reference, but do not present it as the main pipeline.

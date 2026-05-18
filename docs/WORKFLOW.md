@@ -44,8 +44,8 @@ Micro LED 是下一代显示技术的核心。每颗像素自发光，无需背�
 
 ```
 你的内容是什么类型？
-├── 有数学公式/几何原理/算法动画  →  Manim（见 docs/MANIM.md）
-└── 其他（流程/数据/产业/对比）   →  HyperFrames（继续往下看）
+├── 有数学公式/几何原理/制造原理  →  Manim（见 docs/MANIM.md）
+└── 其他（产业链/数据/对比）       →  HyperFrames（继续往下看）
 ```
 
 ### HyperFrames 动画规范

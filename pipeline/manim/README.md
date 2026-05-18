@@ -1,46 +1,38 @@
-#!/usr/bin/env bash
-# pipeline/manim/README.md
-# Manim 渲染说明
-cat << 'EOF'
-# Manim 渲染引擎
+# Manim Renderer
 
-用于技术/算法类视频，类似 3Blue1Brown 风格的数学几何动画。
+Manim is the renderer for technical-principle scenes: geometry, algorithms, manufacturing processes, optics, and other step-by-step explanations.
 
-## 安装
+## Environment
+
+Use a dedicated Python 3.11 virtual environment:
 
 ```bash
-pip install manim
-# macOS 还需要
-brew install cairo ffmpeg
+python3.11 -m venv .venv-manim
+.venv-manim/bin/pip install -r requirements-manim.txt
 ```
 
-注意：Manim 需要安装在 cosyvoice_local 的 venv 或系统 Python 里，不要装在 .venv-tts 里。
+Do not install Manim into `.venv-tts`; TTS and Manim have different dependency profiles.
 
-## 运行示例（勾股定理）
+## Micro LED Mass Transfer Demo
 
 ```bash
-cd ~/Projects/techscript-video-pipeline/pipeline/manim
-
-# 渲染（无 LaTeX 依赖，推荐）
-manim pythagoras_nolatex.py PythagoreanTheoremNoLatex -qh --fps 24
-
-# 输出在 media/videos/pythagoras_nolatex/1080p24/
+PYTHON=.venv-tts/bin/python make tts EP=demo-manim
+make schedule EP=demo-manim
+make manim-build EP=demo-manim
 ```
 
-## 适用场景
+Scene file:
 
-- 数学公式推导
-- 几何原理可视化
-- 算法步骤演示（如巨量转移工艺流程）
-- 物理/光学原理
+```text
+pipeline/manim/microled_mass_transfer.py
+```
 
-## 与 HyperFrames 的区别
+Output:
 
-| 维度 | Manim | HyperFrames |
-|------|-------|-------------|
-| 适合内容 | 数学/算法/几何 | 产业链/数据/流程图 |
-| 风格 | 3B1B 学术风 | 科技信息图风 |
-| 开发语言 | Python | HTML+GSAP+JS |
-| 渲染方式 | 本地 Python | Chrome CDP |
-| 灵活性 | 几何动画极强 | 布局/数据展示极强 |
-EOF
+```text
+episodes/demo-manim/output/demo-manim_full.mp4
+```
+
+## Legacy Pythagoras Examples
+
+`pythagoras.py` and `pythagoras_nolatex.py` are kept as Manim style references. They are not the primary product demo.

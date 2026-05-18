@@ -17,11 +17,12 @@ EP ?= ep01
 FPS ?= $(shell node -e "const fs=require('fs'); const p='shared/brand/video.json'; const c=fs.existsSync(p)?JSON.parse(fs.readFileSync(p,'utf8')):{}; console.log(c.fps || 24)" 2>/dev/null || echo 24)
 PYTHON ?= python3
 
-.PHONY: help build tts schedule preflight ep01 ep01-render ep01-mix preview clean-frames check
+.PHONY: help build manim-build tts schedule preflight ep01 ep01-render ep01-mix preview clean-frames check
 
 help:
 	@echo "Targets:"
 	@echo "  make build EP=demo-industry             — Build an episode"
+	@echo "  make manim-build EP=demo-manim          — Build Manim episode"
 	@echo "  make tts EP=demo-industry               — Generate Edge TTS voiceover"
 	@echo "  make schedule EP=demo-industry          — Generate audio_schedule.json"
 	@echo "  make preflight EP=demo-industry         — Check build prerequisites"
@@ -34,6 +35,9 @@ help:
 
 build:
 	@./pipeline/build_episode.sh $(EP)
+
+manim-build:
+	@./pipeline/build_manim_episode.sh $(EP)
 
 tts:
 	@$(PYTHON) pipeline/tts_cli.py --provider edge --voice zh-CN-YunjianNeural --ep $(EP)
@@ -87,3 +91,4 @@ check:
 	@[ -x "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" ] && echo "✓ Chrome found" || echo "❌ Chrome missing"
 	@which bc && echo "✓ bc found" || echo "❌ bc missing"
 	@[ -d node_modules/ws ] && echo "✓ node dependency ws found" || echo "❌ run npm install"
+	@[ -x .venv-manim/bin/python ] && .venv-manim/bin/python -m manim --version | head -1 || echo "❌ run python3.11 -m venv .venv-manim && .venv-manim/bin/pip install -r requirements-manim.txt"

@@ -62,6 +62,11 @@ def cmd_synth_ep(provider, voice, ep):
     out_dir.mkdir(parents=True, exist_ok=True)
     p = get_provider(provider)
     segs = parse_script(script)
+    valid_outputs = {f"{ep}_{sid}.mp3" for sid, _ in segs}
+    for stale in out_dir.glob(f"{ep}_s*.mp3"):
+        if stale.name not in valid_outputs:
+            stale.unlink()
+            print(f"  removed stale {stale.name}")
     print(f"📖 {ep}: {len(segs)} 段, provider={provider}, voice={voice or p.default_voice}")
     for sid, text in segs:
         out = out_dir / f"{ep}_{sid}.mp3"

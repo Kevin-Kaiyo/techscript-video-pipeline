@@ -1,23 +1,34 @@
-# demo-manim — Manim 技术类动画示例
+# demo-manim - Micro LED Mass Transfer
 
-这一集用 Manim 展示「勾股定理」的几何面积证明。
+This demo is the Phase C reference for technical-principle videos rendered with Manim.
 
-作为 demo-tech 的升级路径：用同样的 Manim 引擎来做 Micro LED 巨量转移原理动画。
+It explains Micro LED mass transfer:
 
-## 场景脚本
+1. LED wafer pixels are fabricated densely.
+2. An elastomer stamp picks up many pixels at once.
+3. The stamp aligns and releases pixels onto a TFT backplane.
+4. Yield, placement accuracy, defect detection, and repair determine whether the process can scale.
 
-- `../../pipeline/manim/pythagoras_nolatex.py` — 勾股定理（无 LaTeX，推荐）
+## Files
 
-## 渲染
+- `script.md` - narration split into `sNN` segments.
+- `../../pipeline/manim/microled_mass_transfer.py` - Manim scene.
+- `audio/voiceover/` - generated locally by `tts_cli.py` and ignored by git.
+- `output/` - generated local MP4 files and ignored by git.
+
+## Build
 
 ```bash
-cd ~/Projects/techscript-video-pipeline
-manim pipeline/manim/pythagoras_nolatex.py PythagoreanTheoremNoLatex -qh --fps 24
-# 输出：media/videos/.../1080p24/PythagoreanTheoremNoLatex.mp4
+python3.11 -m venv .venv-manim
+.venv-manim/bin/pip install -r requirements-manim.txt
+
+PYTHON=.venv-tts/bin/python make tts EP=demo-manim
+make schedule EP=demo-manim
+make manim-build EP=demo-manim
 ```
 
-## 状态
+The final video is written to:
 
-- [x] 场景脚本完成
-- [ ] 配音脚本 (script.md)
-- [ ] 合成最终视频
+```text
+episodes/demo-manim/output/demo-manim_full.mp4
+```

@@ -26,7 +26,7 @@ TechScript Video Pipeline 是一套**本地优先、可复刻**的技术讲解�
 | 能力 | 工具 | 说明 |
 |------|------|------|
 | 动画渲染（产业/数据类） | HyperFrames (GSAP + HTML) | 浏览器动画 → CDP 截帧 → MP4 |
-| 动画渲染（技术/算法类） | Manim *(计划中)* | 数学几何动画，3Blue1Brown 风格 |
+| 动画渲染（技术/算法类） | Manim | 数学几何、制造流程、原理动画 |
 | 多 backend 配音 | Edge-TTS / CosyVoice3 / ElevenLabs | 可插拔 TTS 抽象层 |
 | 声音克隆 | CosyVoice3 zero-shot | 本地离线，15s 样本即可 |
 | 音画对齐 | ffprobe + auto_schedule.mjs | 自动测段长、生成 schedule |
@@ -35,7 +35,7 @@ TechScript Video Pipeline 是一套**本地优先、可复刻**的技术讲解�
 ### 内容类型 × 工具选择
 
 ```
-技术/算法类  ──▶  Manim *(计划中)*  (数学推导、几何原理)
+技术/算法类  ──▶  Manim              (数学推导、几何原理、工艺流程)
 产业/上下游  ──▶  HyperFrames       (流程图、产业链、公司对比)
 数据/图表类  ──▶  HyperFrames       (柱状图、趋势线、饼图)
 ```
@@ -132,6 +132,7 @@ make build EP=demo-industry
 | `demo-tech` | 技术/工艺 | Micro LED 巨量转移 | ~45s |
 | `demo-industry` | 产业链 | Micro LED 上中下游全景 | ~40s |
 | `demo-data` | 数据图表 | 全球显示市场增长 | ~36s |
+| `demo-manim` | 技术/工艺 | Micro LED 巨量转移 Manim 动画 | ~30s |
 
 ---
 
@@ -152,7 +153,7 @@ make build EP=demo-industry
 - [x] 音画自动对齐（ffprobe → auto_schedule）
 - [x] 声音克隆（CosyVoice3 zero-shot，本地离线）
 - [x] Fresh-clone preflight and root Node dependency manifest
-- [ ] Manim 技术类动画模板
+- [x] Manim 技术类动画模板（demo-manim）
 - [ ] 字幕自动生成（Whisper）
 - [ ] 一键生成脚本（LLM → script.md）
 - [ ] GitHub Actions 自动化构建
