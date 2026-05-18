@@ -14,7 +14,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from pipeline import tts as tts_pkg
 from pipeline.tts import list_providers, get_provider
 
-ROOT = Path(__file__).resolve().parent.parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCRIPT_SEG_RE = re.compile(r'^##\s+(s\d+)\s*\n([\s\S]*?)(?=^##\s+s\d+|\Z)', re.M)
 
 
@@ -54,7 +54,7 @@ def cmd_synth_text(provider, voice, text, out):
 
 
 def cmd_synth_ep(provider, voice, ep):
-    ep_dir = ROOT / "techscript-video-pipeline/episodes" / ep
+    ep_dir = PROJECT_ROOT / "episodes" / ep
     script = ep_dir / "script.md"
     if not script.exists():
         print(f"❌ {script} 不存在"); sys.exit(1)
@@ -110,7 +110,7 @@ def main():
     ap.add_argument("--out", default="out.mp3")
     ap.add_argument("--ep", default=None)
     ap.add_argument("--bake-off", default=None, dest="bake_off")
-    ap.add_argument("--bake-dir", default=str(ROOT / "techscript-video-pipeline/tts-bake-off"))
+    ap.add_argument("--bake-dir", default=str(PROJECT_ROOT / "tts-bake-off"))
     args = ap.parse_args()
 
     if args.list:

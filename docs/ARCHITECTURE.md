@@ -74,7 +74,7 @@ render_cdp_resumable.mjs
     │  Chrome CDP → 截图 → JPEG
     │  断点续传（frame_NNNNN.jpg 已存在则跳过）
     ▼
-/tmp/<ep>_frames/frame_NNNNN.jpg  (24fps × duration)
+/tmp/<ep>_frames/frame_NNNNN.jpg  (fps × duration; default from shared/brand/video.json)
     │
     ▼
 FFmpeg → <ep>_silent.mp4

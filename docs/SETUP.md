@@ -27,8 +27,8 @@ pip install edge-tts requests tabulate
 ### Node 环境（渲染器）
 
 ```bash
-# 全局安装 ws（CDP 渲染依赖）
-cd /tmp && npm install ws
+# 安装 CDP 渲染依赖
+npm install
 ```
 
 ---
@@ -93,7 +93,7 @@ python -c "from modelscope import snapshot_download; snapshot_download('FunAudio
 
 减小 batch 大小：
 ```bash
-# 将 400 改为 200
+# 将 400 改为 200，并按 video.json 默认 fps 调整第一个参数
 node pipeline/render_cdp_resumable.mjs 24 40 /tmp/frames demo-ep \
   "http://localhost:18234/index.html" 200
 ```

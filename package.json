@@ -1,0 +1,16 @@
+{
+  "name": "techscript-video-pipeline",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local-first workflow for turning technical scripts into explainer videos.",
+  "type": "module",
+  "scripts": {
+    "check": "npm run check:js && npm run check:python",
+    "check:js": "for f in pipeline/*.mjs; do node --check \"$f\" || exit 1; done",
+    "check:python": "python3 -m py_compile pipeline/tts_cli.py pipeline/tts/*.py",
+    "preflight": "node pipeline/preflight.mjs"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

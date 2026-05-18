@@ -10,6 +10,7 @@
 
 # ===== Render artifacts =====
 episodes/*/animations/hyperframes/renders/
+preview/
 
 # ===== TTS experiments =====
 tts-bake-off/

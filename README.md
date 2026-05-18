@@ -70,7 +70,7 @@ pip install edge-tts requests tabulate
 ### 3. 安装 Node 依赖（仅渲染器需要）
 
 ```bash
-cd /tmp && npm install ws
+npm install
 ```
 
 ### 4. （可选）安装 CosyVoice（本地 TTS）
@@ -98,7 +98,10 @@ python pipeline/tts_cli.py --provider edge --voice zh-CN-YunjianNeural --ep demo
 # 自动对齐 schedule
 node pipeline/auto_schedule.mjs episodes/demo-industry
 
-# 启动 HTTP 渲染服务（新终端）
+# 构建前检查
+node pipeline/preflight.mjs demo-industry
+
+# 启动 HTTP 渲染服务（新终端；build_episode.sh 也会自动启动）
 cd episodes/demo-industry/animations/hyperframes && python3 -m http.server 18234
 
 # 渲染帧
@@ -107,6 +110,15 @@ node pipeline/render_cdp_resumable.mjs 24 40 /tmp/demo-industry_frames demo-indu
 
 # 合成最终视频
 bash pipeline/build_episode.sh demo-industry
+```
+
+也可以使用 Makefile：
+
+```bash
+make tts EP=demo-industry
+make schedule EP=demo-industry
+make preflight EP=demo-industry
+make build EP=demo-industry
 ```
 
 ---
@@ -139,6 +151,7 @@ bash pipeline/build_episode.sh demo-industry
 - [x] 多 backend TTS 抽象层（Edge / CosyVoice3 / ElevenLabs / MiniMax / Google）
 - [x] 音画自动对齐（ffprobe → auto_schedule）
 - [x] 声音克隆（CosyVoice3 zero-shot，本地离线）
+- [x] Fresh-clone preflight and root Node dependency manifest
 - [ ] Manim 技术类动画模板
 - [ ] 字幕自动生成（Whisper）
 - [ ] 一键生成脚本（LLM → script.md）

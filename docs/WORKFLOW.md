@@ -9,8 +9,9 @@
 2. 写动画    →  animations/hyperframes/index.html
 3. 生成配音  →  tts_cli.py
 4. 对齐 schedule →  auto_schedule.mjs
-5. 渲染帧    →  render_cdp_resumable.mjs
-6. 合成视频  →  build_episode.sh / compose_audio.mjs
+5. 构建前检查 →  preflight.mjs
+6. 渲染帧    →  render_cdp_resumable.mjs
+7. 合成视频  →  build_episode.sh / compose_audio.mjs
 ```
 
 ---
@@ -117,14 +118,21 @@ node pipeline/auto_schedule.mjs episodes/<ep>
 
 ## Step 5: 渲染动画帧
 
+先运行 preflight，确认依赖、episode 结构和已生成的 voiceover 文件都存在：
+
+```bash
+node pipeline/preflight.mjs <ep>
+```
+
 ```bash
 # 启动 HTTP 服务（新终端）
 cd episodes/<ep>/animations/hyperframes
 python3 -m http.server 18234
 
 # 回到项目根，分批渲染（推荐每批 300-500 帧）
+# FPS 默认来自 shared/brand/video.json；手动调用时需要显式传入。
 node pipeline/render_cdp_resumable.mjs \
-  24 \                          # FPS
+  30 \                          # FPS
   40 \                          # 总时长(秒)
   /tmp/<ep>_frames \            # 输出帧目录
   <ep-name> \                   # composition id
@@ -162,9 +170,9 @@ node pipeline/compose_audio.mjs \
 ## 常用 Makefile 命令
 
 ```bash
-make preview EP=demo-tech      # 渲染关键帧预览
 make tts EP=demo-tech          # 生成配音
-make render EP=demo-tech       # 渲染全帧
-make compose EP=demo-tech      # 合成视频
-make all EP=demo-tech          # 完整流程
+make schedule EP=demo-tech     # 生成 audio_schedule.json
+make preflight EP=demo-tech    # 检查构建条件
+make preview EP=demo-tech      # 渲染关键帧预览
+make build EP=demo-tech        # 完整构建
 ```

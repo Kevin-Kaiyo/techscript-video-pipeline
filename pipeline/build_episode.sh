@@ -25,10 +25,13 @@ PORT=18234
 [ -d "$HF_DIR" ] || { echo "❌ $HF_DIR not found"; exit 1; }
 mkdir -p "$RENDERS" "$OUT_DIR"
 
+cd "$PROJECT_ROOT"
+node pipeline/preflight.mjs "$EP"
+
 # 1) 解析 composition id + duration
 COMP_ID=$(grep -o 'data-composition-id="[^"]*"' "$HF_DIR/index.html" | head -1 | sed 's/.*"\(.*\)"/\1/')
 DURATION=$(grep -o 'data-duration="[^"]*"' "$HF_DIR/index.html" | head -1 | sed 's/.*"\(.*\)"/\1/')
-FPS=${FPS:-24}
+FPS=${FPS:-$(node -e "const fs=require('fs'); const p='shared/brand/video.json'; const c=fs.existsSync(p)?JSON.parse(fs.readFileSync(p,'utf8')):{}; console.log(c.fps || 24)")}
 TOTAL_FRAMES=$(echo "$FPS * $DURATION" | bc | cut -d. -f1)
 
 echo "═══════════════════════════════════════"
@@ -44,11 +47,7 @@ cd "$HF_DIR" && nohup python3 -m http.server $PORT > /tmp/${EP}_server.log 2>&1 
 disown
 sleep 2
 
-# 3) 准备 node + 工具 (一次性)
-[ -d /tmp/node_modules/ws ] || (cd /tmp && npm install ws --no-audit --no-fund > /dev/null 2>&1)
-cp "$PROJECT_ROOT/pipeline/render_cdp_resumable.mjs" /tmp/
-
-# 4) 分批渲染，直到完成
+# 3) 分批渲染，直到完成
 MAX_RUNS=30
 BATCH=${BATCH:-100}
 for i in $(seq 1 $MAX_RUNS); do
@@ -59,8 +58,8 @@ for i in $(seq 1 $MAX_RUNS); do
   rm -rf /tmp/chrome-render-profile
 
   set +e
-  cd /tmp && NODE_PATH=/tmp/node_modules node --expose-gc --max-old-space-size=400 \
-    /tmp/render_cdp_resumable.mjs \
+  cd "$PROJECT_ROOT" && node --expose-gc --max-old-space-size=400 \
+    pipeline/render_cdp_resumable.mjs \
     "$FPS" "$DURATION" "$FRAMES_DIR" "$COMP_ID" \
     "http://localhost:$PORT/index.html" "$BATCH"
   CODE=$?

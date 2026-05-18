@@ -1,84 +1,100 @@
-# PROJECT.md — Micro LED 科普视频项目规划
+# PROJECT.md - TechScript Video Pipeline
 
-## 项目信息
+## Project Status
 
-| 字段 | 内容 |
-|------|------|
-| 项目名称 | TechScript Video Pipeline |
-| 项目代号 | techscript-video-pipeline |
-| 负责人 | Kaiyo Nan |
-| 创建日期 | 2026-05-08 |
-| 当前版本 | v0.1.0 |
-| 目标平台 | B站、抖音、YouTube、LinkedIn |
+TechScript Video Pipeline is a local-first workflow for turning technical scripts into short explainer videos with animation, voiceover, subtitles, and FFmpeg composition.
 
----
+Current status: **prototype / stabilization phase**.
 
-## 制作标准
+The project has a working HyperFrames path and a usable TTS abstraction layer, but it is not yet a polished end-user product. The immediate goal is reproducibility: a fresh clone should be understandable, installable, and able to render at least one demo locally.
 
-### 视频规格
-- 分辨率：1920×1080（Full HD）
-- 帧率：30fps
-- 时长：≤60 秒
-- 格式：MP4 (H.264)
-- 比特率：8-12 Mbps
+## Product Scope
 
-### 视觉风格
-- **主色调**：#0066FF（科技蓝）、#FFFFFF（纯白）、#0A0E1A（深空黑）
-- **辅助色**：#00D4FF（青蓝）、#E8F4FD（浅蓝背景）
-- **字体**：思源黑体 (CN)、Inter (EN)
-- **动效**：简洁过渡、数据动画、粒子光效
+### In Scope
 
-### 音频规格
-- 配音：普通话标准音，语速 3.5-4 字/秒
-- 背景音乐：-20dB 以下，不压主音轨
-- 格式：MP3 192kbps 或 WAV 44.1kHz
+- Episode-based project layout under `episodes/<episode>/`.
+- HyperFrames rendering for industry, process, comparison, and data-chart videos.
+- TTS generation through pluggable providers.
+- Automatic audio scheduling from generated voiceover duration.
+- FFmpeg video/audio composition.
+- Manim integration for technical/math scenes, once a real demo is productized.
 
----
+### Out of Scope For The Current Phase
 
-## 里程碑
+- Cloud rendering.
+- One-click publishing to Bilibili, YouTube, TikTok, or LinkedIn.
+- Automatic LLM script generation.
+- Commercial GSAP use without a separate GSAP commercial license.
+- Bundling generated media, voice samples, or personal assets in git.
 
-### Phase 1 — EP01 基础版（当前阶段）
+## Canonical Workflow
 
-| 任务 | 状态 | 说明 |
-|------|------|------|
-| 项目工程搭建 | ✅ 完成 | 目录 + 配置 + 模板 |
-| EP01 文案脚本 | ✅ 完成 | 6 场景，60 秒 |
-| 场景图像生成 | 🔄 制作中 | 用 image_generate |
-| 普通话配音 | 🔄 制作中 | 用 sag TTS |
-| 背景音乐 | 🔄 制作中 | 用 music_generate |
-| 视频合成 | ⏳ 待开始 | 用 remotion 或拼接 |
-| EP01 发布 | ⏳ 待开始 | 多平台发布 |
-
-### Phase 2 — EP02-EP04 扩展
-
-待 EP01 完成后规划。
-
----
-
-## 工作流程 SOP
-
-```
-1. 文案脚本 (scripts/)
-   ↓
-2. 分镜拆解 (production/scenes/)
-   ↓
-3. 资产生成
-   - 图像：image_generate → assets/images/
-   - 配音：sag → assets/audio/voiceover/
-   - 音乐：music_generate → assets/audio/bgm/
-   ↓
-4. 视频合成 (remotion-video-toolkit)
-   ↓
-5. 输出审核 → output/
-   ↓
-6. 发布归档
+```text
+episodes/<ep>/script.md
+  -> pipeline/tts_cli.py
+  -> episodes/<ep>/audio/voiceover/*.mp3
+  -> pipeline/auto_schedule.mjs
+  -> episodes/<ep>/audio_schedule.json
+  -> episodes/<ep>/animations/hyperframes/index.html
+  -> pipeline/build_episode.sh
+  -> episodes/<ep>/output/<ep>_full.mp4
 ```
 
----
+## Content Types
 
-## 变更日志
+| Content type | Primary renderer | Status |
+| --- | --- | --- |
+| Industry maps / value chains | HyperFrames | Working demos |
+| Data and chart explainers | HyperFrames | Working demos |
+| Technical principles / algorithms | Manim | Planned, not productized |
 
-### v0.1.0 (2026-05-08)
-- 初始工程搭建
-- EP01 脚本完成
-- 项目结构规范化
+## Current Demos
+
+| Episode | Purpose | Renderer | Status |
+| --- | --- | --- | --- |
+| `demo-industry` | Micro LED industry chain | HyperFrames | Reference demo |
+| `demo-data` | Display market growth | HyperFrames | Reference demo |
+| `demo-tech` | Micro LED mass transfer concept | HyperFrames | Temporary technical demo |
+| `demo-manim` | Manim technical animation | Manim | Placeholder |
+| `ep01` | Original Micro LED experiment | Mixed legacy/current | Kept as historical material |
+
+## Stabilization Plan
+
+### Phase A - Make The Repository Honest
+
+- Keep current public docs aligned with actual commands and directory structure.
+- Archive legacy EP01 static-image scripts instead of presenting them as the main pipeline.
+- Mark Manim as planned until a real demo exists.
+- Document current risks and open problems.
+
+### Phase B - Make Fresh Clone Work
+
+- Use a root `package.json` for Node dependencies instead of `/tmp/node_modules`.
+- Add preflight checks before rendering.
+- Fix project-root path assumptions.
+- Use `shared/brand/video.json` as the default video configuration source.
+
+### Phase C - Productize Manim
+
+- Build a real `demo-manim` episode.
+- Document the Manim setup and rendering path.
+- Use it for technical/algorithmic scenes rather than treating it as a future promise.
+
+## Verification Baseline
+
+Before considering a change stable, run:
+
+```bash
+npm install
+npm run check
+make check
+```
+
+For a real render smoke test:
+
+```bash
+source .venv-tts/bin/activate
+python pipeline/tts_cli.py --provider edge --voice zh-CN-YunjianNeural --ep demo-industry
+node pipeline/auto_schedule.mjs episodes/demo-industry
+bash pipeline/build_episode.sh demo-industry
+```
