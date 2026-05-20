@@ -23,7 +23,7 @@ techscript-video-pipeline/
 │       ├── script.md            # 文案脚本（## sNN 分段）
 │       ├── audio_schedule.json  # 音画对齐时间表（自动生成）
 │       ├── animations/
-│       │   └── hyperframes/     # HTML+GSAP 动画源码
+│       │   └── hyperframes/     # HTML+GSAP 信息图动画源码
 │       │       └── index.html
 │       ├── audio/
 │       │   └── voiceover/       # TTS 生成的 mp3 文件
@@ -86,6 +86,28 @@ FFmpeg → <ep>_silent.mp4
 output/<ep>_full.mp4
 ```
 
+### Manim 渲染流
+
+```
+script.md
+    │
+    ├─ tts_cli.py → audio/voiceover/*.mp3
+    ├─ auto_schedule.mjs → audio_schedule.json
+    │
+    ▼
+pipeline/manim/<scene>.py
+    │  Python / Manim scene
+    ▼
+Manim renderer
+    │  Cairo/OpenGL style scientific animation
+    ▼
+episodes/<ep>/output/<ep>_silent.mp4
+    │
+    ├─ compose_audio.mjs
+    ▼
+episodes/<ep>/output/<ep>_full.mp4
+```
+
 ### TTS 配音流
 
 ```
@@ -138,6 +160,17 @@ CosyVoice 依赖 PyTorch (Python 3.11 + torch 2.3)，与项目主 venv 隔离。
 
 | 场景 | 工具 | 原因 |
 |------|------|------|
-| 技术/算法 | Manim *(计划中)* | 数学精确，几何动画，3B1B 风格 |
+| 技术/算法/工艺动作 | Manim | 数学精确，几何动画，制造过程表达强 |
 | 产业/上下游 | HyperFrames | 流程图、卡片、高亮动效灵活 |
+| 设备/材料/供应链 | HyperFrames | 多节点关系、对比和分类表达清晰 |
 | 数据/图表 | HyperFrames | SVG 动画柱状图/趋势线/饼图 |
+
+### Remotion Position
+
+Remotion is not a dependency today. It is technically closer to HyperFrames than to Manim:
+
+- HyperFrames: HTML/CSS/GSAP in Chrome, captured through CDP.
+- Remotion: React components in Chrome, captured and composed through the Remotion toolchain.
+- Manim: Python scene graph rendered by the Manim engine, then composed with FFmpeg.
+
+If HyperFrames becomes hard to maintain, Remotion is the likely upgrade path for the browser-rendered information-graphics line. It is not a replacement for Manim.

@@ -2,16 +2,18 @@
 
 ## 从零开始制作一集视频
 
+本项目不是 Micro LED 专用工具。Micro LED 只是当前验证素材。新集数可以面向任意半导体科普主题，只要先判断它主要是在讲“信息结构”还是“技术动作”。
+
 ### 整体流程
 
 ```
 1. 写文案    →  script.md
-2. 写动画    →  animations/hyperframes/index.html
-3. 生成配音  →  tts_cli.py
-4. 对齐 schedule →  auto_schedule.mjs
-5. 构建前检查 →  preflight.mjs
-6. 渲染帧    →  render_cdp_resumable.mjs
-7. 合成视频  →  build_episode.sh / compose_audio.mjs
+2. 选择渲染器 →  HyperFrames 或 Manim
+3. 写动画    →  animations/hyperframes/index.html 或 pipeline/manim/<scene>.py
+4. 生成配音  →  tts_cli.py
+5. 对齐 schedule →  auto_schedule.mjs
+6. 构建前检查 →  preflight.mjs
+7. 渲染/合成  →  build_episode.sh 或 build_manim_episode.sh
 ```
 
 ---
@@ -44,9 +46,23 @@ Micro LED 是下一代显示技术的核心。每颗像素自发光，无需背�
 
 ```
 你的内容是什么类型？
-├── 有数学公式/几何原理/制造原理  →  Manim（见 docs/MANIM.md）
-└── 其他（产业链/数据/对比）       →  HyperFrames（继续往下看）
+├── 技术动作/物理过程/几何关系/制造机理  →  Manim（见 docs/MANIM.md）
+├── 产业链/设备材料/供应链/路线图       →  HyperFrames（继续往下看）
+├── 市场数据/对比/节点时间轴             →  HyperFrames
+└── 混合型内容                           →  拆成多个 scene，分别渲染后用 FFmpeg 合成
 ```
+
+### 半导体选题示例
+
+| 主题 | 推荐切法 | 主渲染器 |
+|------|----------|----------|
+| Hybrid bonding 原理 | 表面平坦化、对准、接触、退火、缺陷 | Manim |
+| Hybrid bonding 设备材料 | CMP、清洗、键合机、检测、载片、材料流 | HyperFrames |
+| 3D 封装 | chiplet 堆叠、TSV、interposer、热路径 | Manim + HyperFrames |
+| CPO / 光互连 | 电互连瓶颈、光引擎位置、供应链角色 | HyperFrames |
+| Micro LED 光互连 | 像素阵列、光耦合、微纳结构、系统价值 | Manim + HyperFrames |
+
+原则：**能画成结构图/产业图/数据图的，用 HyperFrames；需要展示运动、接触、变形、对准、扩散、几何推导的，用 Manim。**
 
 ### HyperFrames 动画规范
 
@@ -175,4 +191,16 @@ make schedule EP=demo-tech     # 生成 audio_schedule.json
 make preflight EP=demo-tech    # 检查构建条件
 make preview EP=demo-tech      # 渲染关键帧预览
 make build EP=demo-tech        # 完整构建
+make manim-build EP=demo-manim # 构建 Manim 技术原理动画
+```
+
+创建新 episode：
+
+```bash
+npm run scaffold -- <episode-id> <family> [renderer]
+
+# family: principle, process, equipment, industry, data, system
+# renderer 可省略；默认按 family 自动选择 Manim / HyperFrames / Mixed
+npm run scaffold -- demo-hybrid-bonding-principle principle
+npm run scaffold -- demo-hybrid-bonding-supply-chain equipment
 ```

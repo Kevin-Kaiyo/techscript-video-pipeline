@@ -21,6 +21,8 @@
 TechScript Video Pipeline 是一套**本地优先、可复刻**的技术讲解视频生成工作流。  
 它把「写一篇技术文章」这件事，标准化地转化成「一段有动画、有配音、有字幕的科普短视频」。
 
+项目当前以 Micro LED 作为第一批验证题材，但目标不是只服务 Micro LED。它面向更广泛的半导体科普内容，例如 3D 封装、混合键合、先进封装设备材料、光互连、CPO、Micro LED 光互连、半导体制造流程和产业链分析。
+
 ### 核心能力
 
 | 能力 | 工具 | 说明 |
@@ -35,10 +37,12 @@ TechScript Video Pipeline 是一套**本地优先、可复刻**的技术讲解�
 ### 内容类型 × 工具选择
 
 ```
-技术/算法类  ──▶  Manim              (数学推导、几何原理、工艺流程)
-产业/上下游  ──▶  HyperFrames       (流程图、产业链、公司对比)
-数据/图表类  ──▶  HyperFrames       (柱状图、趋势线、饼图)
+技术原理/工艺流程  ──▶  Manim        (数学推导、几何原理、制造动作)
+产业链/设备材料    ──▶  HyperFrames  (流程图、价值链、公司/设备对比)
+数据/市场/路线图   ──▶  HyperFrames  (柱状图、趋势线、节点时间轴)
 ```
+
+Remotion 目前没有集成。它和 HyperFrames 同属浏览器画面转视频路线，未来可作为 HyperFrames 的工程化升级候选；Manim 是独立的 Python 科学动画路线，不依赖 Remotion。
 
 ---
 
@@ -121,11 +125,18 @@ make preflight EP=demo-industry
 make build EP=demo-industry
 ```
 
+创建新半导体科普集数骨架：
+
+```bash
+npm run scaffold -- demo-hybrid-bonding-principle principle
+npm run scaffold -- demo-hybrid-bonding-supply-chain equipment
+```
+
 ---
 
 ## 示例
 
-本项目内置三个示例集数，覆盖三种内容类型：
+本项目内置示例集数，覆盖当前两条主线：
 
 | 集数 | 类型 | 主题 | 时长 |
 |------|------|------|------|
@@ -134,11 +145,20 @@ make build EP=demo-industry
 | `demo-data` | 数据图表 | 全球显示市场增长 | ~36s |
 | `demo-manim` | 技术/工艺 | Micro LED 巨量转移 Manim 动画 | ~30s |
 
+后续真实选题可以沿用同一结构，不需要绑定 Micro LED：
+
+- 3D 封装：硅通孔、interposer、chiplet 堆叠、热/良率挑战。
+- Hybrid bonding：CMP、表面活化、对准、低温键合、缺陷检测。
+- 先进封装设备材料：键合机、临时键合/解键合、underfill、载板、RDL。
+- 光互连/CPO：电互连瓶颈、光引擎、封装集成、良率和供应链。
+- Micro LED 光互连：显示、传感、通信与微纳光学结构结合。
+
 ---
 
 ## 文档
 
 - [🏗️ 架构设计](docs/ARCHITECTURE.md) — 系统组件与数据流
+- [🧭 内容体系](docs/CONTENT_SYSTEM.md) — 半导体科普选题分类与渲染器选择
 - [🔄 工作流详解](docs/WORKFLOW.md) — 从文章到视频的完整步骤
 - [⚙️ 环境搭建](docs/SETUP.md) — 安装、配置、常见问题
 - [🔊 TTS 配置](docs/TTS.md) — 各 backend 对比与使用方法
@@ -154,6 +174,8 @@ make build EP=demo-industry
 - [x] 声音克隆（CosyVoice3 zero-shot，本地离线）
 - [x] Fresh-clone preflight and root Node dependency manifest
 - [x] Manim 技术类动画模板（demo-manim）
+- [x] 通用半导体科普内容分类与双渲染路线说明
+- [x] 通用 episode scaffold 命令（按内容类型创建新集数）
 - [ ] 字幕自动生成（Whisper）
 - [ ] 一键生成脚本（LLM → script.md）
 - [ ] GitHub Actions 自动化构建

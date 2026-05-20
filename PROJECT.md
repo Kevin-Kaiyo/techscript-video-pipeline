@@ -4,20 +4,23 @@
 
 TechScript Video Pipeline is a local-first workflow for turning technical scripts into short explainer videos with animation, voiceover, subtitles, and FFmpeg composition.
 
+The first validated demos use Micro LED because it is the seed domain, but the product goal is broader: a reusable semiconductor explainer pipeline for topics such as advanced packaging, hybrid bonding, photonic interconnects, semiconductor equipment/materials, display technology, and market/industry analysis.
+
 Current status: **prototype / stabilization phase**.
 
-The project has a working HyperFrames path and a usable TTS abstraction layer, but it is not yet a polished end-user product. The immediate goal is reproducibility: a fresh clone should be understandable, installable, and able to render at least one demo locally.
+The project has working HyperFrames and Manim paths plus a usable TTS abstraction layer, but it is not yet a polished end-user product. The immediate goal is reproducibility and repeatability: a fresh clone should be understandable, installable, and able to render representative demos from both rendering lines locally.
 
 ## Product Scope
 
 ### In Scope
 
 - Episode-based project layout under `episodes/<episode>/`.
-- HyperFrames rendering for industry, process, comparison, and data-chart videos.
+- HyperFrames rendering for industry maps, equipment/material flows, comparison, roadmap, and data-chart videos.
+- Manim rendering for technical principles, process mechanics, geometry, algorithms, and manufacturing sequence videos.
 - TTS generation through pluggable providers.
 - Automatic audio scheduling from generated voiceover duration.
 - FFmpeg video/audio composition.
-- Manim integration for technical/math scenes, once a real demo is productized.
+- Semiconductor-topic authoring patterns that can be reused beyond Micro LED.
 
 ### Out of Scope For The Current Phase
 
@@ -26,6 +29,7 @@ The project has a working HyperFrames path and a usable TTS abstraction layer, b
 - Automatic LLM script generation.
 - Commercial GSAP use without a separate GSAP commercial license.
 - Bundling generated media, voice samples, or personal assets in git.
+- Remotion integration until HyperFrames becomes a proven maintenance bottleneck.
 
 ## Canonical Workflow
 
@@ -35,8 +39,10 @@ episodes/<ep>/script.md
   -> episodes/<ep>/audio/voiceover/*.mp3
   -> pipeline/auto_schedule.mjs
   -> episodes/<ep>/audio_schedule.json
-  -> episodes/<ep>/animations/hyperframes/index.html
-  -> pipeline/build_episode.sh
+  -> choose renderer:
+       HyperFrames: episodes/<ep>/animations/hyperframes/index.html
+       Manim:       pipeline/manim/<scene>.py
+  -> build_episode.sh or build_manim_episode.sh
   -> episodes/<ep>/output/<ep>_full.mp4
 ```
 
@@ -45,8 +51,23 @@ episodes/<ep>/script.md
 | Content type | Primary renderer | Status |
 | --- | --- | --- |
 | Industry maps / value chains | HyperFrames | Working demos |
-| Data and chart explainers | HyperFrames | Working demos |
-| Technical principles / algorithms | Manim | Reference demo available |
+| Equipment/material/process maps | HyperFrames | Pattern documented |
+| Data, market, and roadmap explainers | HyperFrames | Working demos |
+| Technical principles / process mechanics | Manim | Reference demo available |
+| Mixed episodes | HyperFrames + Manim + FFmpeg | Planned composition pattern |
+
+## Topic Families
+
+The pipeline should support repeatable semiconductor explainers across these families:
+
+| Family | Example questions | Preferred renderer |
+| --- | --- | --- |
+| Technology principle | How does hybrid bonding actually connect two wafers? | Manim |
+| Manufacturing process | What happens from surface preparation to post-bond anneal? | Manim |
+| Equipment/material stack | Which tools and materials are needed for hybrid bonding? | HyperFrames |
+| Industry/value chain | Who supplies tools, materials, substrates, foundry capacity, and inspection? | HyperFrames |
+| Market/data story | Why is 3D packaging becoming necessary now? | HyperFrames |
+| System architecture | How do CPO, optical engines, switch ASICs, and packaging interact? | HyperFrames, with Manim inserts when needed |
 
 ## Current Demos
 
@@ -79,6 +100,14 @@ episodes/<ep>/script.md
 - Build a real `demo-manim` episode. Done.
 - Document the Manim setup and rendering path. Done.
 - Use it for technical/algorithmic scenes rather than treating it as a future promise. Done for the first reference demo.
+
+### Phase D - Generalize Beyond Micro LED
+
+- Reframe docs and templates around semiconductor explainer topics rather than one Micro LED series. Done.
+- Keep HyperFrames and Manim as the two supported production renderers. Done.
+- Add topic families and renderer selection rules. Done.
+- Add a scaffold command for new episodes by content type. Done.
+- Produce one non-Micro LED reference episode, preferably hybrid bonding or 3D packaging. Planned.
 
 ## Verification Baseline
 
